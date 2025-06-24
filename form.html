@@ -2,37 +2,36 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>いいねぇ隊 入力フォーム</title>
+  <title>いいねぇ隊 フォーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
     iframe {
       width: 100%;
       height: 100vh;
       border: none;
+      zoom: 1.25; /* スマホ表示対策（文字大きめ） */
     }
   </style>
 </head>
 <body>
-  <p>フォームを読み込み中…</p>
   <iframe id="formFrame" src=""></iframe>
 
-  <form id="hiddenForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/formResponse" method="POST" target="dummyFrame" style="display:none;">
-    <input type="hidden" name="entry.469863943" id="entryDisplayName">
-    <input type="hidden" name="entry.1381234537" id="entryUserId">
-  </form>
-
-  <iframe name="dummyFrame" style="display:none;"></iframe>
-
   <script>
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.search);
     const displayName = params.get("displayName") || "";
     const userId = params.get("userId") || "";
 
-    document.getElementById("entryDisplayName").value = displayName;
-    document.getElementById("entryUserId").value = userId;
-    document.getElementById("hiddenForm").submit();
+    const embedUrl = `https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/viewform?embedded=true` +
+      `&entry.469863943=${displayName}` +
+      `&entry.1381234537=${userId}` +
+      `&pageHistory=0,2`;
 
-    const embedURL = `https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/viewform?embedded=true&entry.469863943=${displayName}&entry.1381234537=${userId}&pageHistory=0,1`;
-    document.getElementById("formFrame").src = embedURL;
+    document.getElementById("formFrame").src = embedUrl;
   </script>
 </body>
 </html>

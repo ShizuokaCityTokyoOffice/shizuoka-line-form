@@ -2,17 +2,25 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>登録完了</title>
+  <title>送信完了</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      font-family: sans-serif;
       text-align: center;
-      margin-top: 50px;
+      padding: 2em;
+      font-size: 1.2em;
     }
   </style>
 </head>
 <body>
-  <h2>ご登録ありがとうございました！</h2>
-  <p>静岡市東京事務所より今後も情報をお届けします。</p>
+  <p>ご回答ありがとうございました！</p>
+  <p>LINEに戻ります…</p>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    liff.init({ liffId: "2007626441-bRzd722l" }).then(() => {
+      liff.closeWindow();
+    });
+  </script>
 </body>
 </html>
