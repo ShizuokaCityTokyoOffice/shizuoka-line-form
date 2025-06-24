@@ -2,18 +2,17 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>送信完了</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <title>登録完了</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+  </style>
 </head>
 <body>
-  <p>ご回答ありがとうございました！</p>
-
-  <script>
-    liff.init({ liffId: "2007626441-bRzd722l" }).then(() => {
-      if (liff.isInClient()) {
-        setTimeout(() => liff.closeWindow(), 2000);
-      }
-    }).catch(console.error);
-  </script>
+  <h2>ご登録ありがとうございました！</h2>
+  <p>静岡市東京事務所より今後も情報をお届けします。</p>
 </body>
 </html>

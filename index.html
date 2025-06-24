@@ -2,31 +2,34 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>LINEログイン</title>
+  <title>いいねぇ隊 登録フォーム</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <p>ログイン中…</p>
-
+  <p>読み込み中...</p>
   <script>
     async function main() {
-      await liff.init({ liffId: "2007626441-bRzd722l" });
+      try {
+        await liff.init({ liffId: "2007626441-bRzd722l" });
 
-      if (!liff.isLoggedIn()) {
-        liff.login();
-      } else {
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
         const profile = await liff.getProfile();
         const displayName = encodeURIComponent(profile.displayName);
         const userId = encodeURIComponent(profile.userId);
-        // form.htmlに遷移（URLパラメータで渡す）
-        location.href = `form.html?displayName=${displayName}&userId=${userId}`;
+
+        const redirectUrl = `form.html?displayName=${displayName}&userId=${userId}`;
+        location.href = redirectUrl;
+      } catch (e) {
+        document.body.innerHTML = "<p>LINEアプリで開いてください。</p>";
+        console.error("LIFFエラー:", e);
       }
     }
 
-    main().catch(e => {
-      document.body.innerHTML = "<p>LIFFエラー。LINEで開いてください。</p>";
-      console.error(e);
-    });
+    main();
   </script>
 </body>
 </html>

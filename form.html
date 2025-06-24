@@ -2,8 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>登録フォーム</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>いいねぇ隊 入力フォーム</title>
   <style>
     iframe {
       width: 100%;
@@ -13,23 +12,27 @@
   </style>
 </head>
 <body>
+  <p>フォームを読み込み中…</p>
   <iframe id="formFrame" src=""></iframe>
 
+  <form id="hiddenForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/formResponse" method="POST" target="dummyFrame" style="display:none;">
+    <input type="hidden" name="entry.469863943" id="entryDisplayName">
+    <input type="hidden" name="entry.1381234537" id="entryUserId">
+  </form>
+
+  <iframe name="dummyFrame" style="display:none;"></iframe>
+
   <script>
-    function getParam(name) {
-      return new URLSearchParams(window.location.search).get(name) || '';
-    }
+    const params = new URLSearchParams(window.location.search);
+    const displayName = params.get("displayName") || "";
+    const userId = params.get("userId") || "";
 
-    const displayName = getParam("displayName");
-    const userId = getParam("userId");
+    document.getElementById("entryDisplayName").value = displayName;
+    document.getElementById("entryUserId").value = userId;
+    document.getElementById("hiddenForm").submit();
 
-    // GoogleフォームのURL（あなたのフォームIDに書き換えてください）
-    const baseURL = "https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/viewform?usp=dialog";
-
-    // 各entry値はフォームで設定した「LINE表示名」「userId」のフィールドに対応
-    const fullURL = `${baseURL}?entry.1363739510=${displayName}&entry.1734268321=${userId}&pageHistory=0,1`;
-
-    document.getElementById("formFrame").src = fullURL;
+    const embedURL = `https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/viewform?embedded=true&entry.469863943=${displayName}&entry.1381234537=${userId}&pageHistory=0,1`;
+    document.getElementById("formFrame").src = embedURL;
   </script>
 </body>
 </html>
