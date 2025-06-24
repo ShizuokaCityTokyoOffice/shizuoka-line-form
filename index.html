@@ -2,39 +2,39 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>隊員判定フォーム</title>
+  <title>いいねぇ隊ログイン確認</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <h2>LINEログイン中です…</h2>
+  <h2>あなたは「いいねぇ隊」ですか？</h2>
+  <form id="form" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/formResponse">
+    <input type="hidden" name="entry.1330653930" id="displayName"> <!-- 表示名 -->
+    <input type="hidden" name="entry.1782760419" id="lineUserId">  <!-- LINE ID -->
 
-  <form id="submitForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/formResponse" method="POST" target="_self" style="display:none;">
-    <!-- 表示名 -->
-    <input type="hidden" name="entry.2146352064" id="displayName">
-    <!-- LINE ID -->
-    <input type="hidden" name="entry.2140745391" id="userId">
-    <!-- いいねぇ隊かどうか -->
-    <input type="hidden" name="entry.1711843264" id="isMember" value="はい">
-    <input type="submit" id="submitBtn">
+    <label>「いいねぇ隊」ですか？</label><br>
+    <input type="radio" name="entry.1392264491" value="はい" required> はい<br>
+    <input type="radio" name="entry.1392264491" value="いいえ"> いいえ<br><br>
+
+    <button type="submit">送信する</button>
   </form>
 
   <script>
-    async function main() {
-      await liff.init({ liffId: "2007626441-bRzd722l" }); // ← あなたのLIFF IDをここに
-      if (!liff.isLoggedIn()) {
-        liff.login();
-        return;
-      }
-
-      const profile = await liff.getProfile();
-      document.getElementById("displayName").value = profile.displayName;
-      document.getElementById("userId").value = profile.userId;
-
-      // 自動送信
-      document.getElementById("submitForm").submit();
-    }
-
-    main();
+    window.onload = function () {
+      liff.init({ liffId: "2007626441-bRzd722l" })
+        .then(() => {
+          if (!liff.isLoggedIn()) {
+            liff.login();
+          } else {
+            liff.getProfile().then(profile => {
+              document.getElementById("displayName").value = profile.displayName;
+              document.getElementById("lineUserId").value = profile.userId;
+            });
+          }
+        })
+        .catch(err => {
+          console.error('LIFF init error:', err);
+        });
+    };
   </script>
 </body>
 </html>
