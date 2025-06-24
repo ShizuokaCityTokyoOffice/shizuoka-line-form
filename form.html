@@ -2,7 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>入力フォーム</title>
+  <title>登録フォーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     iframe {
       width: 100%;
@@ -16,17 +17,17 @@
 
   <script>
     function getParam(name) {
-      return new URLSearchParams(location.search).get(name) || '';
+      return new URLSearchParams(window.location.search).get(name) || '';
     }
 
     const displayName = getParam("displayName");
     const userId = getParam("userId");
 
-    const base = "https://docs.google.com/forms/d/e/【フォームID】/viewform";
-    const entryDisplayName = "entry.469863943"; // LINE表示名
-    const entryUserId = "entry.1381234537";      // LINE userId
+    // GoogleフォームのURL（あなたのフォームIDに書き換えてください）
+    const baseURL = "https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/viewform?usp=dialog";
 
-    const fullURL = `${base}?${entryDisplayName}=${displayName}&${entryUserId}=${userId}&pageHistory=0,1`;
+    // 各entry値はフォームで設定した「LINE表示名」「userId」のフィールドに対応
+    const fullURL = `${baseURL}?entry.1363739510=${displayName}&entry.1734268321=${userId}&pageHistory=0,1`;
 
     document.getElementById("formFrame").src = fullURL;
   </script>
