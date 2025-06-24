@@ -2,36 +2,37 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>いいねぇ隊 フォーム</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>いいねぇ隊 入力フォーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    html, body {
+    body, html {
       margin: 0;
       padding: 0;
-      height: 100%;
+      font-size: 16px;
+      font-family: sans-serif;
     }
     iframe {
       width: 100%;
       height: 100vh;
       border: none;
-      zoom: 1.25; /* スマホ表示対策（文字大きめ） */
     }
   </style>
 </head>
 <body>
+  <p style="text-align:center;">フォームを読み込み中…</p>
   <iframe id="formFrame" src=""></iframe>
 
   <script>
-    const params = new URLSearchParams(location.search);
+    // URLから表示名とuserIdを取得
+    const params = new URLSearchParams(window.location.search);
     const displayName = params.get("displayName") || "";
     const userId = params.get("userId") || "";
 
-    const embedUrl = `https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/viewform?embedded=true` +
-      `&entry.469863943=${displayName}` +
-      `&entry.1381234537=${userId}` +
-      `&pageHistory=0,2`;
+    // GoogleフォームのURL構築
+    const formURL = `https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/viewform?embedded=true&entry.469863943=${encodeURIComponent(displayName)}&entry.1381234537=${encodeURIComponent(userId)}&pageHistory=0,1,2`;
 
-    document.getElementById("formFrame").src = embedUrl;
+    // iframeに読み込む
+    document.getElementById("formFrame").src = formURL;
   </script>
 </body>
 </html>

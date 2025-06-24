@@ -2,38 +2,26 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>フォームへ移動中</title>
+  <title>LINEログイン</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 2em;
-    }
-  </style>
 </head>
 <body>
-  <p>フォームへ移動中です…</p>
+  <h2>ログイン中です...</h2>
 
   <script>
     async function main() {
-      try {
-        await liff.init({ liffId: "2007626441-bRzd722l" });
-
-        if (!liff.isLoggedIn()) {
-          liff.login();
-        } else {
-          const profile = await liff.getProfile();
-          const displayName = encodeURIComponent(profile.displayName);
-          const userId = encodeURIComponent(profile.userId);
-
-          const url = `form.html?displayName=${displayName}&userId=${userId}`;
-          window.location.href = url;
-        }
-      } catch (error) {
-        document.body.innerHTML = "<p>LINEアプリ内で開いてください。</p>";
-        console.error("LIFF初期化エラー:", error);
+      await liff.init({ liffId: "2007626441-bRzd722l" });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
       }
+
+      const profile = await liff.getProfile();
+      const displayName = encodeURIComponent(profile.displayName);
+      const userId = encodeURIComponent(profile.userId);
+
+      // リダイレクト：表示名とuserIdをURLパラメータとしてform.htmlへ渡す
+      location.href = `form.html?displayName=${displayName}&userId=${userId}`;
     }
 
     main();
