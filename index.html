@@ -2,18 +2,11 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>いいねぇ隊自動ログイン送信</title>
+  <title>いいねぇ隊ログイン確認</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <p>送信中です…しばらくお待ちください。</p>
-
-  <form id="form" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/formResponse">
-    <!-- 表示名 -->
-    <input type="hidden" name="entry.2049269456" id="displayName">
-    <!-- LINEユーザーID -->
-    <input type="hidden" name="entry.642481283" id="lineUserId">
-  </form>
+  <p>確認中です…</p>
 
   <script>
     async function main() {
@@ -24,20 +17,27 @@
           liff.login();
         } else {
           const profile = await liff.getProfile();
-          document.getElementById("displayName").value = profile.displayName;
-          document.getElementById("lineUserId").value = profile.userId;
 
-          // 自動送信
-          document.getElementById("form").submit();
+          // GoogleフォームのエントリIDに合わせてパラメータを作成
+          const formData = new FormData();
+          formData.append("entry.2049269456", profile.displayName); // 表示名
+          formData.append("entry.642481283", profile.userId);       // userId
 
-          // 送信完了後にLINEトーク画面に戻る（約1.5秒後）
+          // Googleフォーム送信（非同期POST）
+          await fetch("https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/formResponse", {
+            method: "POST",
+            mode: "no-cors", // CORS回避のために必要
+            body: formData
+          });
+
+          // 数秒後にトーク画面に戻す
           setTimeout(() => {
             liff.closeWindow();
-          }, 1500);
+          }, 1000);
         }
       } catch (err) {
-        console.error("LIFFエラー:", err);
-        document.body.innerHTML = "<p>エラーが発生しました。LINEで開いていますか？</p>";
+        console.error("エラー:", err);
+        document.body.innerHTML = "<p>LINEアプリ内で開いてください。</p>";
       }
     }
 
