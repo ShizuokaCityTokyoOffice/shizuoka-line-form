@@ -2,8 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>いいねぇ隊 入力フォーム</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>入力フォーム</title>
   <style>
     iframe {
       width: 100%;
@@ -13,20 +12,21 @@
   </style>
 </head>
 <body>
-  <p>フォームを読み込み中…</p>
-
   <iframe id="formFrame" src=""></iframe>
 
   <script>
     function getParam(name) {
-      return new URLSearchParams(window.location.search).get(name) || '';
+      return new URLSearchParams(location.search).get(name) || '';
     }
 
     const displayName = getParam("displayName");
     const userId = getParam("userId");
 
-    const baseURL = "https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/viewform";
-    const fullURL = `${baseURL}?entry.1363739510=${displayName}&entry.1734268321=${userId}`;
+    const base = "https://docs.google.com/forms/d/e/【フォームID】/viewform";
+    const entryDisplayName = "entry.469863943"; // LINE表示名
+    const entryUserId = "entry.1381234537";      // LINE userId
+
+    const fullURL = `${base}?${entryDisplayName}=${displayName}&${entryUserId}=${userId}&pageHistory=0,1`;
 
     document.getElementById("formFrame").src = fullURL;
   </script>

@@ -2,35 +2,19 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>登録完了</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>送信完了</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 2em;
-    }
-  </style>
 </head>
 <body>
-  <h2>ご登録ありがとうございました！</h2>
-  <p>まもなくLINEトーク画面に戻ります。</p>
+  <p>ご回答ありがとうございました！</p>
 
   <script>
-    async function main() {
-      try {
-        await liff.init({ liffId: "2007626441-bRzd722l" });
-        setTimeout(() => {
-          liff.closeWindow();
-        }, 3000);
-      } catch (err) {
-        console.error("LIFFエラー:", err);
-        document.body.innerHTML += "<p>LINEアプリ内で開いてください。</p>";
+    // LINE内ならウィンドウを閉じる
+    liff.init({ liffId: "YOUR_LIFF_ID" }).then(() => {
+      if (liff.isInClient()) {
+        setTimeout(() => liff.closeWindow(), 2000);
       }
-    }
-
-    window.onload = main;
+    });
   </script>
 </body>
 </html>

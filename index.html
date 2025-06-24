@@ -2,34 +2,31 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>いいねぇ隊 ログイン確認</title>
+  <title>LINEログイン</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <p>確認中です…</p>
+  <p>ログイン中…</p>
 
   <script>
     async function main() {
-      try {
-        await liff.init({ liffId: "2007626441-bRzd722l" });
+      await liff.init({ liffId: "YOUR_LIFF_ID" });
 
-        if (!liff.isLoggedIn()) {
-          liff.login();
-        } else {
-          const profile = await liff.getProfile();
-          const displayName = encodeURIComponent(profile.displayName);
-          const userId = encodeURIComponent(profile.userId);
-
-          // form.htmlにパラメータ付きで遷移
-          window.location.href = `form.html?displayName=${displayName}&userId=${userId}`;
-        }
-      } catch (err) {
-        console.error("LIFF初期化エラー:", err);
-        document.body.innerHTML = "<p>LINEアプリ内で開いてください。</p>";
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      } else {
+        const profile = await liff.getProfile();
+        const displayName = encodeURIComponent(profile.displayName);
+        const userId = encodeURIComponent(profile.userId);
+        // Googleフォーム側に渡すためにform.htmlへリダイレクト
+        location.href = `form.html?displayName=${displayName}&userId=${userId}`;
       }
     }
 
-    window.onload = main;
+    main().catch(e => {
+      document.body.innerHTML = "<p>LIFFエラー。LINEで開いてください。</p>";
+      console.error(e);
+    });
   </script>
 </body>
 </html>
