@@ -2,11 +2,11 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ログイン中...</title>
+  <title>いいねぇ隊 ログイン確認</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <p>LINEログイン中です…</p>
+  <p>確認中です…</p>
 
   <script>
     async function main() {
@@ -15,17 +15,16 @@
 
         if (!liff.isLoggedIn()) {
           liff.login();
-          return;
+        } else {
+          const profile = await liff.getProfile();
+          const displayName = encodeURIComponent(profile.displayName);
+          const userId = encodeURIComponent(profile.userId);
+
+          // form.htmlにパラメータ付きで遷移
+          window.location.href = `form.html?displayName=${displayName}&userId=${userId}`;
         }
-
-        const profile = await liff.getProfile();
-        const displayName = encodeURIComponent(profile.displayName);
-        const userId = encodeURIComponent(profile.userId);
-
-        // form.html にパラメータを渡して遷移
-        window.location.href = `form.html?displayName=${displayName}&userId=${userId}`;
       } catch (err) {
-        console.error(err);
+        console.error("LIFF初期化エラー:", err);
         document.body.innerHTML = "<p>LINEアプリ内で開いてください。</p>";
       }
     }
