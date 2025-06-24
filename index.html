@@ -1,43 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>いいねぇ隊ログイン確認</title>
+  <title>いいねぇ隊自動ログイン送信</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <h2>あなたは「いいねぇ隊」ですか？</h2>
+  <p>送信中です…しばらくお待ちください。</p>
 
   <form id="form" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/formResponse">
     <!-- 表示名 -->
     <input type="hidden" name="entry.2049269456" id="displayName">
     <!-- LINEユーザーID -->
     <input type="hidden" name="entry.642481283" id="lineUserId">
-
-    <label>「いいねぇ隊」ですか？</label><br>
-    <input type="radio" name="entry.1791036011" value="はい" required> はい<br>
-    <input type="radio" name="entry.1791036011" value="いいえ"> いいえ<br><br>
-
-    <button type="submit">送信する</button>
   </form>
 
   <script>
-    window.onload = function () {
-      liff.init({ liffId: "2007626441-bRzd722l" })
-        .then(() => {
-          if (!liff.isLoggedIn()) {
-            liff.login();
-          } else {
-            liff.getProfile().then(profile => {
-              document.getElementById("displayName").value = profile.displayName;
-              document.getElementById("lineUserId").value = profile.userId;
-            });
-          }
-        })
-        .catch(err => {
-          console.error('LIFF init error:', err);
-        });
-    };
+    async function main() {
+      try {
+        await liff.init({ liffId: "2007626441-bRzd722l" });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+        } else {
+          const profile = await liff.getProfile();
+          document.getElementById("displayName").value = profile.displayName;
+          document.getElementById("lineUserId").value = profile.userId;
+
+          // 自動送信
+          document.getElementById("form").submit();
+
+          // 送信完了後にLINEトーク画面に戻る（約1.5秒後）
+          setTimeout(() => {
+            liff.closeWindow();
+          }, 1500);
+        }
+      } catch (err) {
+        console.error("LIFFエラー:", err);
+        document.body.innerHTML = "<p>エラーが発生しました。LINEで開いていますか？</p>";
+      }
+    }
+
+    window.onload = main;
   </script>
 </body>
 </html>
