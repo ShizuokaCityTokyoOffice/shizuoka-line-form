@@ -11,29 +11,29 @@
   <script>
     async function main() {
       try {
+        // LIFF 初期化
         await liff.init({ liffId: "2007626441-bRzd722l" });
 
+        // 未ログインならログイン処理
         if (!liff.isLoggedIn()) {
           liff.login();
         } else {
           const profile = await liff.getProfile();
 
-          // GoogleフォームのエントリIDに合わせてパラメータを作成
+          // Googleフォームに送信するデータ作成
           const formData = new FormData();
           formData.append("entry.2049269456", profile.displayName); // 表示名
-          formData.append("entry.642481283", profile.userId);       // userId
+          formData.append("entry.642481283", profile.userId);       // ユーザーID
 
-          // Googleフォーム送信（非同期POST）
+          // GoogleフォームにPOST（非同期・CORS回避）
           await fetch("https://docs.google.com/forms/d/e/1FAIpQLSdDhwlXKqEjJrkmqsfz-F0WhzrfUoJ7yOLx78xusPLprIGprQ/formResponse", {
             method: "POST",
-            mode: "no-cors", // CORS回避のために必要
+            mode: "no-cors",
             body: formData
           });
 
-          // 数秒後にトーク画面に戻す
-          setTimeout(() => {
-            liff.closeWindow();
-          }, 1000);
+          // 完了ページにリダイレクト
+          window.location.href = "complete.html";
         }
       } catch (err) {
         console.error("エラー:", err);

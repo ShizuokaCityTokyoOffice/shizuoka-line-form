@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>送信完了</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <h2>ご協力ありがとうございました！</h2>
+  <p>まもなくLINEトーク画面に戻ります。</p>
+
+  <script>
+    async function closeAfterDelay() {
+      try {
+        await liff.init({ liffId: "2007626441-bRzd722l" });
+        setTimeout(() => liff.closeWindow(), 3000); // 3秒後にLINEへ戻る
+      } catch (e) {
+        document.body.innerHTML = "<p>LINEアプリで開いてください。</p>";
+      }
+    }
+
+    window.onload = closeAfterDelay;
+  </script>
+</body>
+</html>
