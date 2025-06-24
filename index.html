@@ -2,26 +2,23 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>いいねぇ隊ログイン確認</title>
+  <title>LINEログイン</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <p>確認中です…</p>
+  <p>ログイン中…</p>
 
   <script>
     async function main() {
-      try {
-        // LIFF 初期化
-        await liff.init({ liffId: "2007626441-bRzd722l" });
+      await liff.init({ liffId: "2007626441-bRzd722l" });
 
-        // 未ログインならログイン処理
-        if (!liff.isLoggedIn()) {
-          liff.login();
-        } else {
-          const profile = await liff.getProfile();
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      } else {
+        const profile = await liff.getProfile();
         const displayName = encodeURIComponent(profile.displayName);
         const userId = encodeURIComponent(profile.userId);
-        // Googleフォーム側に渡すためにform.htmlへリダイレクト
+        // form.htmlに遷移（URLパラメータで渡す）
         location.href = `form.html?displayName=${displayName}&userId=${userId}`;
       }
     }
