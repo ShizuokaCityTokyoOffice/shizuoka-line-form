@@ -1,0 +1,17 @@
+# 🔒 機密情報（アップしない）
+docs/config.js
+
+# 🧪 一時ファイル
+*.log
+*.tmp
+
+# 🖥 macOS用（いらないやつ）
+.DS_Store
+
+# 💻 VSCodeユーザーなら
+.vscode/
+
+# 🔧 Node.js使う場合（今はなくても一応）
+node_modules/
+dist/
+build/
