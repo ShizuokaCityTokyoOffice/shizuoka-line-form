@@ -3,30 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <title>LINEログイン</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <!-- 外部設定ファイル（LIFF ID） -->
   <script src="config.js"></script>
 </head>
 <body>
-  <h2>ログイン中です...</h2>
+  <h2>LINEログイン中です...</h2>
 
   <script>
     async function main() {
+      // LIFF初期化（config.jsで定義された LIFF_ID を使用）
       await liff.init({ liffId: window.LIFF_ID });
+
+      // 未ログインならログイン要求
       if (!liff.isLoggedIn()) {
         liff.login();
         return;
       }
 
+      // プロフィール取得
       const profile = await liff.getProfile();
-      const displayName = encodeURIComponent(profile.displayName);
-      const userId = encodeURIComponent(liff.getContext().userId || "");  // ←ここ修正
+      const displayName = encodeURIComponent(profile.displayName || "");
+      const userId = encodeURIComponent(liff.getContext().userId || "");
 
-      // form.html に情報を渡してリダイレクト
+      // form.htmlに表示名とuserIdをクエリで渡して遷移
       location.href = `form.html?displayName=${displayName}&userId=${userId}`;
     }
 
     main().catch((err) => {
-      document.body.innerHTML = "<p>エラーが発生しました。LINEで開いていますか？</p>";
+      document.body.innerHTML = "<p>エラーが発生しました。LINEアプリ内で開いていますか？</p>";
       console.error(err);
     });
   </script>
