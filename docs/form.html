@@ -5,19 +5,25 @@
   <title>いいねぇ隊 入力フォーム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-size: 16px;
       font-family: sans-serif;
-      text-align: center;
-      padding-top: 3em;
-      color: #333;
-      background-color: #f5f5f5;
+    }
+    iframe {
+      width: 100%;
+      height: 100vh;
+      border: none;
     }
   </style>
 </head>
 <body>
-  <p>フォームに移動中です。しばらくお待ちください...</p>
+  <p style="text-align:center;">フォームを読み込み中…</p>
+  <iframe id="formFrame" src=""></iframe>
 
   <script>
+    // URLから表示名とuserIdを取得
     const params = new URLSearchParams(window.location.search);
     const displayName = params.get("displayName") || "";
     const userId = params.get("userId") || "";
@@ -25,8 +31,8 @@
     // GoogleフォームのURL構築
     const formURL = `https://docs.google.com/forms/d/e/1FAIpQLSe9Vqr49ns-lfL9Pf7j7WOr0WpV2NwDCFanuBpXANW2G54SyA/viewform?embedded=true&entry.1345981371=${encodeURIComponent(displayName)}&entry.802528278=${encodeURIComponent(userId)}&pageHistory=0,1,2,3,4`;
 
-    // リダイレクト（即時）
-    window.location.href = formURL;
+    // iframeに読み込む
+    document.getElementById("formFrame").src = formURL;
   </script>
 </body>
 </html>

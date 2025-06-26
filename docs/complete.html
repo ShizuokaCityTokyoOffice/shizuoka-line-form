@@ -2,40 +2,29 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>送信完了</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>回答完了</title>
   <style>
     body {
-      background-color: #f7f7f7;
       font-family: sans-serif;
       text-align: center;
-      padding: 4em 1em;
-      color: #333;
-    }
-    h1 {
-      font-size: 1.8em;
-      margin-bottom: 0.5em;
-    }
-    p {
-      font-size: 1em;
-      line-height: 1.6;
-    }
-    .thanks {
-      margin-top: 2em;
-      font-weight: bold;
-      font-size: 1.2em;
-    }
-    .footer {
-      margin-top: 4em;
-      font-size: 0.85em;
-      color: #888;
+      padding: 2em;
     }
   </style>
 </head>
 <body>
-  <h1>送信ありがとうございました！</h1>
-  <p>ご入力いただいた内容は無事に受け付けました。</p>
-  <div class="thanks">静岡市の「いいねぇ。」届け隊</div>
-  <div class="footer">© Shizuoka City Tokyo Office</div>
+  <h1>ご回答ありがとうございました！</h1>
+  <p>LINEアプリに戻ります...</p>
+
+  <script>
+    // 数秒後にLIFFウィンドウを閉じる
+    setTimeout(() => {
+      if (liff && liff.closeWindow) {
+        liff.closeWindow();
+      } else {
+        window.close();
+      }
+    }, 2000);
+  </script>
 </body>
 </html>
