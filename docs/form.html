@@ -2,28 +2,35 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>リダイレクト中…</title>
+  <title>フォームへ移動中...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
-      background-color: #f9f9f9;
+      background-color: #f7f7f7;
+      color: #333;
       text-align: center;
       padding-top: 3em;
     }
   </style>
 </head>
 <body>
-  <h2>フォームに移動中です…</h2>
+  <p>フォームへ移動しています…</p>
 
   <script>
+    // LINEログインで受け取った表示名とユーザーIDを取得
     const params = new URLSearchParams(window.location.search);
     const displayName = params.get("displayName") || "";
     const userId = params.get("userId") || "";
 
-    const formURL = `https://docs.google.com/forms/d/e/1FAIpQLSe9Vqr49ns-lfL9Pf7j7WOr0WpV2NwDCFanuBpXANW2G54SyA/viewform?usp=pp_url&entry.1345981371=${encodeURIComponent(displayName)}&entry.802528278=${encodeURIComponent(userId)}`;
+    // GoogleフォームのURL（?embedded=true ではない）
+    const baseURL = "https://docs.google.com/forms/d/e/1FAIpQLSe9Vqr49ns-lfL9Pf7j7WOr0WpV2NwDCFanuBpXANW2G54SyA/viewform";
 
-    window.location.href = formURL;
+    // entry番号は新しいフォームに対応
+    const filledURL = `${baseURL}?entry.1345981371=${encodeURIComponent(displayName)}&entry.802528278=${encodeURIComponent(userId)}`;
+
+    // 自動で遷移
+    window.location.href = filledURL;
   </script>
 </body>
 </html>
