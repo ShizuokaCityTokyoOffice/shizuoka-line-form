@@ -8,20 +8,18 @@
     html, body {
       margin: 0;
       padding: 0;
-      font-family: 'Helvetica Neue', sans-serif;
-      background-color: #fafafa;
-      text-align: center;
+      font-family: sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
     }
-
     #loading {
-      margin-top: 3em;
-      color: #777;
-      font-size: 1rem;
+      margin-top: 2em;
+      text-align: center;
+      color: #666;
     }
-
     iframe {
       width: 100%;
-      height: 2100px; /* ←ここの数値が重要（足りないと切れる） */
+      height: 2200px; /* 必要に応じて増減（PC/スマホの高さ考慮） */
       border: none;
       display: none;
     }
@@ -32,19 +30,21 @@
   <iframe id="formFrame"></iframe>
 
   <script>
+    // URLからパラメータを取得
     const params = new URLSearchParams(window.location.search);
     const displayName = params.get("displayName") || "";
     const userId = params.get("userId") || "";
 
-    const formURL = `https://docs.google.com/forms/d/e/1FAIpQLSe9Vqr49ns-lfL9Pf7j7WOr0WpV2NwDCFanuBpXANW2G54SyA/viewform?embedded=true&entry.1345981371=${encodeURIComponent(displayName)}&entry.802528278=${encodeURIComponent(userId)}`;
+    // GoogleフォームURLにLINE情報を埋め込む
+    const formURL = `https://docs.google.com/forms/d/e/1FAIpQLSe9Vqr49ns-lfL9Pf7j7WOr0WpV2NwDCFanuBpXANW2G54SyA/viewform?embedded=true&entry.1345981371=${encodeURIComponent(displayName)}&entry.802528278=${encodeURIComponent(userId)}&pageHistory=0,1,2,3,4`;
 
     const iframe = document.getElementById("formFrame");
     iframe.src = formURL;
 
-    // ロードが完了したら表示切り替え
     iframe.onload = () => {
       document.getElementById("loading").style.display = "none";
       iframe.style.display = "block";
+      window.scrollTo(0, 0); // 念のためトップに戻す
     };
   </script>
 </body>
