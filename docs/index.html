@@ -9,26 +9,28 @@
 <body>
   <h2>ログイン中です...</h2>
 
-<script>
-  async function main() {
-    await liff.init({ liffId: window.LIFF_ID, withLoginOnExternalBrowser: true });
+  <script>
+    async function main() {
+      // LIFF初期化（外部ブラウザ対応）
+      await liff.init({ liffId: window.LIFF_ID, withLoginOnExternalBrowser: true });
 
-    if (!liff.isLoggedIn()) {
-      liff.login();
-      return;
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+
+      const profile = await liff.getProfile();
+      const displayName = encodeURIComponent(profile.displayName);
+      const userId = encodeURIComponent(liff.getContext()?.userId || "");
+
+      // 相対パスで form.html にリダイレクト
+      window.location.href = `./form.html?displayName=${displayName}&userId=${userId}`;
     }
 
-    const profile = await liff.getProfile();
-    const displayName = encodeURIComponent(profile.displayName);
-    const userId = encodeURIComponent(liff.getContext()?.userId || "");
-
-    // ✅ GitHub Pagesに対応したリダイレクト
-    window.location.href = `/shizuoka-line-form/form.html?displayName=${displayName}&userId=${userId}`;
-  }
-
-  main().catch((err) => {
-    document.body.innerHTML = "<p>エラーが発生しました。LINEで開いていますか？</p>";
-    console.error(err);
-  });
-</script></body>
+    main().catch((err) => {
+      document.body.innerHTML = "<p>エラーが発生しました。LINEで開いていますか？</p>";
+      console.error(err);
+    });
+  </script>
+</body>
 </html>
