@@ -18,19 +18,19 @@
   <p>フォームへ移動しています…</p>
 
   <script>
-    // LINEログインで受け取った表示名とユーザーIDを取得
+    // LINEログインで取得した情報をURLから取得
     const params = new URLSearchParams(window.location.search);
     const displayName = params.get("displayName") || "";
     const userId = params.get("userId") || "";
 
-    // GoogleフォームのURL（?embedded=true ではない）
+    // GoogleフォームのベースURL（埋め込みじゃないやつ）
     const baseURL = "https://docs.google.com/forms/d/e/1FAIpQLSe9Vqr49ns-lfL9Pf7j7WOr0WpV2NwDCFanuBpXANW2G54SyA/viewform";
 
-    // entry番号は新しいフォームに対応
-    const filledURL = `${baseURL}?entry.1345981371=${encodeURIComponent(displayName)}&entry.802528278=${encodeURIComponent(userId)}`;
+    // 対応するentry番号（※あなたの指定どおり）
+    const formURL = `${baseURL}?entry.1345981371=${encodeURIComponent(displayName)}&entry.802528278=${encodeURIComponent(userId)}`;
 
-    // 自動で遷移
-    window.location.href = filledURL;
+    // フォームに自動で遷移
+    window.location.href = formURL;
   </script>
 </body>
 </html>
