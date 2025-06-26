@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <title>LINEログイン</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="config.js"></script>
 </head>
 <body>
   <h2>ログイン中です...</h2>
 
   <script>
     async function main() {
-      await liff.init({ liffId: "2007626441-bRzd722l" });
+      await liff.init({ liffId: window.LIFF_ID });
       if (!liff.isLoggedIn()) {
         liff.login();
         return;
@@ -18,13 +19,16 @@
 
       const profile = await liff.getProfile();
       const displayName = encodeURIComponent(profile.displayName);
-      const userId = encodeURIComponent(profile.userId);
+      const userId = encodeURIComponent(liff.getContext().userId || "");  // ←ここ修正
 
-      // リダイレクト：表示名とuserIdをURLパラメータとしてform.htmlへ渡す
+      // form.html に情報を渡してリダイレクト
       location.href = `form.html?displayName=${displayName}&userId=${userId}`;
     }
 
-    main();
+    main().catch((err) => {
+      document.body.innerHTML = "<p>エラーが発生しました。LINEで開いていますか？</p>";
+      console.error(err);
+    });
   </script>
 </body>
 </html>
