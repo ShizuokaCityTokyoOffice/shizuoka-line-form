@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>受信設定フォームに移動中...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <p>受信設定フォームに移動しています...</p>
+
+  <script>
+    const GOOGLE_FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfsOkfT6i3NRWMZnTa3XYenkI-x2On-Hkt2jxvX7oxEpSLcxg/viewform";
+
+    const ENTRY_PARAMS = {
+      displayName: "entry.1868216716",  // 表示名
+      userId: "entry.1530944666"        // ユーザーID
+    };
+
+    async function main() {
+      await liff.init({ liffId: "2007626441-bRzd722l" });
+
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+
+      const profile = await liff.getProfile();
+      const userId = liff.getDecodedIDToken().sub;
+      const displayName = profile.displayName;
+
+      const params = new URLSearchParams();
+      params.set(ENTRY_PARAMS.displayName, displayName);
+      params.set(ENTRY_PARAMS.userId, userId);
+
+      const targetUrl = `${GOOGLE_FORM_BASE_URL}?${params.toString()}`;
+      window.location.href = targetUrl;
+    }
+
+    main();
+  </script>
+</body>
+</html>
