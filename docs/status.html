@@ -3,12 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <title>登録内容確認</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+    }
+    ul {
+      padding-left: 1em;
+    }
+    #toForm {
+      margin-top: 1.5em;
+      padding: 0.8em 1.2em;
+      font-size: 1em;
+    }
+  </style>
 </head>
 <body>
   <h2>こんにちは！登録内容を確認します…</h2>
   <div id="output">読み込み中...</div>
-  <button id="toForm" style="display:none;">登録内容を変更する</button>
+  <button id="toForm" type="button" style="display:none;">登録内容を変更する</button>
 
   <script>
     async function main() {
@@ -22,11 +37,13 @@
       const profile = await liff.getProfile();
       const userId = profile.userId;
 
-      // 正しいGASエンドポイントURLに修正
+      // GASのURL（必ず正しいエンドポイントに変更してください）
       const res = await fetch(`https://script.google.com/macros/s/AKfycby-Qxy5CtzfQDpc16cWk0Xloy1iExvT8EuEHSXbyVYirOC3qcWYZizVVH6IsNb2yk8F/exec?userId=${encodeURIComponent(userId)}`);
       const data = await res.json();
 
       const output = document.getElementById("output");
+      const toFormBtn = document.getElementById("toForm");
+
       if (data.success) {
         output.innerHTML = `
           <ul>
@@ -36,13 +53,16 @@
             <li><strong>興味分野：</strong>${data.interests}</li>
             <li><strong>静岡とのつながり：</strong>${data.relation}</li>
           </ul>`;
-        document.getElementById("toForm").style.display = "block";
-        document.getElementById("toForm").onclick = () => {
+        toFormBtn.style.display = "block";
+        toFormBtn.addEventListener("click", () => {
           location.href = "form.html";
-        };
+        });
       } else {
         output.innerText = "登録情報が見つかりませんでした。新規登録をお願いします。";
-        document.getElementById("toForm").style.display = "block";
+        toFormBtn.style.display = "block";
+        toFormBtn.addEventListener("click", () => {
+          location.href = "form.html";
+        });
       }
     }
 
