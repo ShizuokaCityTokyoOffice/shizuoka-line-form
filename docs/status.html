@@ -22,8 +22,8 @@
       const profile = await liff.getProfile();
       const userId = profile.userId;
 
-      // GASへ現在の登録情報を問い合わせる
-      const res = await fetch(`https://script.google.com/macros/s/"https://script.google.com/macros/s/AKfycby-Qxy5CtzfQDpc16cWk0Xloy1iExvT8EuEHSXbyVYirOC3qcWYZizVVH6IsNb2yk8F/exec"/exec?userId=${encodeURIComponent(userId)}`);
+      // 正しいGASエンドポイントURLに修正
+      const res = await fetch(`https://script.google.com/macros/s/AKfycby-Qxy5CtzfQDpc16cWk0Xloy1iExvT8EuEHSXbyVYirOC3qcWYZizVVH6IsNb2yk8F/exec?userId=${encodeURIComponent(userId)}`);
       const data = await res.json();
 
       const output = document.getElementById("output");
@@ -38,7 +38,7 @@
           </ul>`;
         document.getElementById("toForm").style.display = "block";
         document.getElementById("toForm").onclick = () => {
-          location.href = "form.html"; // 入会フォーム（セクション分岐付き）に遷移
+          location.href = "form.html";
         };
       } else {
         output.innerText = "登録情報が見つかりませんでした。新規登録をお願いします。";
