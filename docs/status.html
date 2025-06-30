@@ -38,7 +38,7 @@
       const userId = profile.userId;
 
       // GASのURL（必ず正しいエンドポイントに変更してください）
-      const res = await fetch(`https://script.google.com/macros/s/AKfycby-Qxy5CtzfQDpc16cWk0Xloy1iExvT8EuEHSXbyVYirOC3qcWYZizVVH6IsNb2yk8F/exec?userId=${encodeURIComponent(userId)}`);
+      const res = await fetch(`https://script.google.com/macros/s/AKfycbziMnfegZIxLKFHptDe0cgsZUSNb5zfZNSvxRhEk9J8eAHUBy6jRN5RJe2-v6F3aDq5/exec?userId=${encodeURIComponent(userId)}`);
       const data = await res.json();
 
       const output = document.getElementById("output");
