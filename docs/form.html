@@ -2,50 +2,173 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>いいねぇ隊 入力フォーム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アンケート入力フォーム</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    html, body {
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background-color: #F8F5F2; /* Craft & Calm palette: Light background */
+      color: #3D405B; /* Craft & Calm palette: Dark text */
       margin: 0;
       padding: 0;
-      font-family: sans-serif;
-      background-color: #f7f7f7;
-      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 2rem;
     }
-    #loading {
-      margin-top: 2em;
-      text-align: center;
-      color: #666;
+    .container {
+        max-width: 500px;
+        width: 90%;
     }
-    iframe {
-      width: 100%;
-      height: 2200px; /* 必要に応じて増減（PC/スマホの高さ考慮） */
-      border: none;
-      display: none;
+    input, textarea, button {
+        border-radius: 0.5rem;
+    }
+    button {
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    button:hover {
+        transform: translateY(-2px);
+    }
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+    .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: #81B29A; /* Accent color */
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <div id="loading">フォームを読み込み中です…</div>
-  <iframe id="formFrame"></iframe>
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="container bg-white p-8 rounded-xl shadow-lg mt-8">
+    <h1 class="text-3xl font-bold text-center mb-6 text-[#E07A5F]">アンケートにご協力ください</h1>
+    <p class="text-center text-gray-600 mb-8">お気づきの点やご意見などございましたら、ご自由にご記入ください。</p>
+
+    <form id="myForm" class="space-y-6">
+      <div class="hidden">
+        <label for="displayName" class="block text-sm font-medium text-gray-700">LINE表示名</label>
+        <input type="text" id="displayName" name="displayName" readonly class="mt-1 block w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+      </div>
+      <div class="hidden">
+        <label for="userId" class="block text-sm font-medium text-gray-700">LINEユーザーID</label>
+        <input type="text" id="userId" name="userId" readonly class="mt-1 block w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+      </div>
+
+      <div>
+        <label for="message" class="block text-lg font-medium text-gray-700 mb-2">メッセージ</label>
+        <textarea id="message" name="message" rows="5" class="mt-1 block w-full border border-gray-300 p-3 rounded-md shadow-sm focus:ring-[#81B29A] focus:border-[#81B29A]" placeholder="ご意見・ご感想をご記入ください..."></textarea>
+      </div>
+
+      <button type="submit" class="w-full bg-[#81B29A] hover:bg-[#6a957d] text-white font-bold py-3 px-4 rounded-lg shadow-md">
+        送信する
+      </button>
+    </form>
+
+    <div id="responseMessage" class="mt-6 text-center text-lg"></div>
+  </div>
 
   <script>
-    // URLからパラメータを取得
-    const params = new URLSearchParams(window.location.search);
-    const displayName = params.get("displayName") || "";
-    const userId = params.get("userId") || "";
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwVoUQP6w0xv5vubrKym0v1s_Br0HYPC_dCTqSknMDfglSzYnk_QdZ8GgkGxBP9iA4t/exec'; // ★ここにデプロイしたGASウェブアプリのURLを貼り付ける★
 
-    // GoogleフォームURLにLINE情報を埋め込む
-    const formURL = `https://docs.google.com/forms/d/e/1FAIpQLSe9Vqr49ns-lfL9Pf7j7WOr0WpV2NwDCFanuBpXANW2G54SyA/viewform?embedded=true&entry.1345981371=${encodeURIComponent(displayName)}&entry.802528278=${encodeURIComponent(userId)}&pageHistory=0,1,2,3,4`;
+    async function initializeLiff() {
+      try {
+        await liff.init({ liffId: "2007626441-bRzd722l" }); // ★あなたのLIFF IDに置き換える★
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
 
-    const iframe = document.getElementById("formFrame");
-    iframe.src = formURL;
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById('displayName').value = decodeURIComponent(params.get('displayName') || '');
+        document.getElementById('userId').value = decodeURIComponent(params.get('userId') || '');
 
-    iframe.onload = () => {
-      document.getElementById("loading").style.display = "none";
-      iframe.style.display = "block";
-      window.scrollTo(0, 0); // 念のためトップに戻す
-    };
+      } catch (err) {
+        console.error("LIFF初期化に失敗しました:", err);
+        document.getElementById('responseMessage').textContent = 'エラー: LIFFの初期化に失敗しました。';
+        document.getElementById('responseMessage').className = 'mt-6 text-center text-red-600';
+      }
+    }
+
+    document.getElementById('myForm').addEventListener('submit', async (e) => {
+      e.preventDefault(); // フォームのデフォルト送信を防止
+
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      const responseMessage = document.getElementById('responseMessage');
+      const submitButton = e.target.querySelector('button[type="submit"]');
+
+      loadingOverlay.classList.remove('hidden'); // ローディング表示
+      submitButton.disabled = true; // ボタン無効化
+      responseMessage.textContent = ''; // メッセージクリア
+
+      const formData = {
+        displayName: document.getElementById('displayName').value,
+        userId: document.getElementById('userId').value,
+        message: document.getElementById('message').value
+      };
+
+      try {
+        const response = await fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.status === 'success') {
+          responseMessage.textContent = 'ご回答ありがとうございました！LINEアプリに戻ります...';
+          responseMessage.className = 'mt-6 text-center text-[#81B29A] font-bold';
+          setTimeout(() => {
+            if (liff && liff.closeWindow) {
+              liff.closeWindow();
+            } else {
+              window.close(); // LIFF外の場合のフォールバック
+            }
+          }, 2000); // 2秒後にLIFFウィンドウを閉じる
+        } else {
+          throw new Error(result.message || 'データの保存に失敗しました。');
+        }
+      } catch (error) {
+        console.error('送信エラー:', error);
+        responseMessage.textContent = `送信中にエラーが発生しました: ${error.message}`;
+        responseMessage.className = 'mt-6 text-center text-[#E07A5F] font-bold';
+      } finally {
+        loadingOverlay.classList.add('hidden'); // ローディング非表示
+        submitButton.disabled = false; // ボタン有効化
+      }
+    });
+
+    initializeLiff();
   </script>
 </body>
 </html>
