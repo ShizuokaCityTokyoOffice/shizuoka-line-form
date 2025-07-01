@@ -120,55 +120,48 @@
     }
 
     document.getElementById('myForm').addEventListener('submit', async (e) => {
-      e.preventDefault(); // フォームのデフォルト送信を防止
+  e.preventDefault(); // フォームのデフォルト送信を防止
 
-      const loadingOverlay = document.getElementById('loadingOverlay');
-      const responseMessage = document.getElementById('responseMessage');
-      const submitButton = e.target.querySelector('button[type="submit"]');
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const responseMessage = document.getElementById('responseMessage');
+  const submitButton = e.target.querySelector('button[type="submit"]');
 
-      loadingOverlay.classList.remove('hidden'); // ローディング表示
-      submitButton.disabled = true; // ボタン無効化
-      responseMessage.textContent = ''; // メッセージクリア
+  loadingOverlay.classList.remove('hidden'); // ローディング表示
+  submitButton.disabled = true; // ボタン無効化
+  responseMessage.textContent = ''; // メッセージクリア
 
-      const formData = {
-        displayName: document.getElementById('displayName').value,
-        userId: document.getElementById('userId').value,
-        message: document.getElementById('message').value
-      };
+  const params = new URLSearchParams({
+    displayName: document.getElementById('displayName').value,
+    userId: document.getElementById('userId').value,
+    message: document.getElementById('message').value
+  });
 
-      try {
-        const response = await fetch(GAS_WEB_APP_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(formData)
-        });
+  try {
+    const response = await fetch(GAS_WEB_APP_URL + '?' + params.toString());
+    const result = await response.text();
 
-        const result = await response.json();
-
-        if (response.ok && result.status === 'success') {
-          responseMessage.textContent = 'ご回答ありがとうございました！LINEアプリに戻ります...';
-          responseMessage.className = 'mt-6 text-center text-[#81B29A] font-bold';
-          setTimeout(() => {
-            if (liff && liff.closeWindow) {
-              liff.closeWindow();
-            } else {
-              window.close(); // LIFF外の場合のフォールバック
-            }
-          }, 2000); // 2秒後にLIFFウィンドウを閉じる
+    if (response.ok && result === 'OK') {
+      responseMessage.textContent = 'ご回答ありがとうございました！LINEアプリに戻ります...';
+      responseMessage.className = 'mt-6 text-center text-[#81B29A] font-bold';
+      setTimeout(() => {
+        if (liff && liff.closeWindow) {
+          liff.closeWindow();
         } else {
-          throw new Error(result.message || 'データの保存に失敗しました。');
+          window.close();
         }
-      } catch (error) {
-        console.error('送信エラー:', error);
-        responseMessage.textContent = `送信中にエラーが発生しました: ${error.message}`;
-        responseMessage.className = 'mt-6 text-center text-[#E07A5F] font-bold';
-      } finally {
-        loadingOverlay.classList.add('hidden'); // ローディング非表示
-        submitButton.disabled = false; // ボタン有効化
-      }
-      });
+      }, 2000);
+    } else {
+      throw new Error('送信失敗: ' + result);
+    }
+  } catch (error) {
+    console.error('送信エラー:', error);
+    responseMessage.textContent = `送信中にエラーが発生しました: ${error.message}`;
+    responseMessage.className = 'mt-6 text-center text-[#E07A5F] font-bold';
+  } finally {
+    loadingOverlay.classList.add('hidden');
+    submitButton.disabled = false;
+  }
+});
 
     initializeLiff();
   </script>
