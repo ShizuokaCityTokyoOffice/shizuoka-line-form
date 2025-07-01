@@ -97,7 +97,7 @@
 
   <script>
     // デプロイしたGASウェブアプリのURL
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyBPmt0heUsSRYE5zwcZ4oopY-KaAgKPjxTRR5Ctqk-7dnN1zRs56F4rjUoV7Xhp2lR/exec';
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby5quyYFZhfaK1qIxttwbGpTH8HXiBGnaQkpiSB1O1q6KcFccCtuZ1qkRrql9LSSPRWvw/exec';
 
     async function initializeLiff() {
       try {
@@ -113,9 +113,10 @@
         document.getElementById('userId').value = profile.userId;
 
       } catch (err) {
-        console.error("LIFF初期化に失敗しました:", err);
-        document.getElementById('responseMessage').textContent = 'エラー: LIFFの初期化に失敗しました。';
-        document.getElementById('responseMessage').className = 'mt-6 text-center text-red-600';
+          console.error("LIFF初期化に失敗しました:", err);
+          // LIFF初期化失敗時のフォールバック処理（ユーザーへのメッセージ表示など）
+          document.getElementById('responseMessage').textContent = 'エラー: LIFFの初期化に失敗しました。LINEアプリから再度お試しください。';
+          document.getElementById('responseMessage').className = 'mt-6 text-center text-red-600';
       }
     }
 
@@ -168,7 +169,7 @@
         loadingOverlay.classList.add('hidden'); // ローディング非表示
         submitButton.disabled = false; // ボタン有効化
       }
-    });
+      });
 
     initializeLiff();
   </script>
