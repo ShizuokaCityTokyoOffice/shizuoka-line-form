@@ -96,19 +96,21 @@
   </div>
 
   <script>
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwVoUQP6w0xv5vubrKym0v1s_Br0HYPC_dCTqSknMDfglSzYnk_QdZ8GgkGxBP9iA4t/exec'; // ★ここにデプロイしたGASウェブアプリのURLを貼り付ける★
+    // デプロイしたGASウェブアプリのURL
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwVoUQP6w0xv5vubrKym0v1s_Br0HYPC_dCTqSknMDfglSzYnk_QdZ8GgkGxBP9iA4t/exec';
 
     async function initializeLiff() {
       try {
-        await liff.init({ liffId: "2007626441-bRzd722l" }); // ★あなたのLIFF IDに置き換える★
+        // あなたのLIFF ID
+        await liff.init({ liffId: "2007626441-bRzd722l" });
         if (!liff.isLoggedIn()) {
           liff.login();
           return;
         }
 
-        const params = new URLSearchParams(window.location.search);
-        document.getElementById('displayName').value = decodeURIComponent(params.get('displayName') || '');
-        document.getElementById('userId').value = decodeURIComponent(params.get('userId') || '');
+        const profile = await liff.getProfile();
+        document.getElementById('displayName').value = profile.displayName;
+        document.getElementById('userId').value = profile.userId;
 
       } catch (err) {
         console.error("LIFF初期化に失敗しました:", err);
