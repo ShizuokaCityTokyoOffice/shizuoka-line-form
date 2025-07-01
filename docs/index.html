@@ -10,7 +10,6 @@
 
   <script>
     async function main() {
-      // あなたのLIFF ID
       await liff.init({ liffId: "2007626441-bRzd722l" });
       if (!liff.isLoggedIn()) {
         liff.login();
@@ -22,7 +21,6 @@
       const userId = encodeURIComponent(profile.userId);
 
       // リダイレクト：表示名とuserIdをURLパラメータとしてform.htmlへ渡す
-      // form.html側でこれらのパラメータを受け取り、hiddenフィールドにセットします
       location.href = `form.html?displayName=${displayName}&userId=${userId}`;
     }
 
