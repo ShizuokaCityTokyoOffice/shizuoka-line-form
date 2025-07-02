@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会員ではありません - いいねぇ隊</title>
+  <!-- Tailwind CSS CDNを読み込む -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Interフォントを読み込む -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* カスタムスタイルとTailwindのオーバーライド */
+    body {
+      font-family: 'Inter', sans-serif; /* Interフォントを適用 */
+      background: linear-gradient(to bottom right, #e0f2fe, #bfdbfe); /* 淡い青のグラデーション */
+      min-height: 100vh; /* 最小高さをビューポートの高さに設定 */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    /* ボタンのホバー/アクティブエフェクト（再利用） */
+    .action-button {
+      transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.2s ease-out;
+    }
+
+    .action-button:hover {
+      transform: translateY(-3px); /* 少し上に浮き上がる */
+      box-shadow: 0 8px 15px rgba(0,0,0,0.15); /* シャドウを強調 */
+    }
+
+    .action-button:active {
+      transform: translateY(0); /* クリック時に元の位置に戻る */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* シャドウを元に戻す */
+    }
+  </style>
+</head>
+<body class="text-gray-800">
+  <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center">
+    <h1 class="text-3xl font-extrabold text-red-600 mb-4 flex items-center justify-center gap-2">
+      <span role="img" aria-label="warning sign">⚠️</span> 会員ではありません
+    </h1>
+    <p class="text-lg mb-6">
+      現在、お客様は「いいねぇ隊」の会員として登録されていません。<br>
+      会員メニューをご利用いただくには、会員登録が必要です。
+    </p>
+
+    <div class="space-y-4">
+      <!-- 会員登録を促すボタン -->
+      <button onclick="location.href='index.html'"
+              class="action-button w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+        <span class="text-xl mr-2">✨</span> 新規会員登録はこちら
+      </button>
+
+      <!-- トップページに戻るボタン -->
+      <button onclick="location.href='notmember.html'"
+              class="action-button w-full px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
+        <span class="text-xl mr-2">🏠</span> トップページに戻る
+      </button>
+    </div>
+  </div>
+</body>
+</html>

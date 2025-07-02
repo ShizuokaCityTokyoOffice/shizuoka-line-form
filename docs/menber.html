@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会員メニュー - いいねぇ隊</title>
+  <!-- Tailwind CSS CDNを読み込む -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Interフォントを読み込む -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* カスタムスタイルとTailwindのオーバーライド */
+    body {
+      font-family: 'Inter', sans-serif; /* Interフォントを適用 */
+      /* グラデーション背景 */
+      background: linear-gradient(to bottom right, #e0f2fe, #bfdbfe); /* 淡い青のグラデーション */
+      animation: fadeIn 1s ease-out; /* フェードインアニメーション */
+    }
+
+    /* ボタンのホバー/アクティブエフェクト */
+    .menu-button {
+      transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.2s ease-out;
+    }
+
+    .menu-button:hover {
+      transform: translateY(-3px); /* 少し上に浮き上がる */
+      box-shadow: 0 8px 15px rgba(0,0,0,0.15); /* シャドウを強調 */
+    }
+
+    .menu-button:active {
+      transform: translateY(0); /* クリック時に元の位置に戻る */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* シャドウを元に戻す */
+      background-color: #e0f0ff; /* クリック時の背景色を少し濃く */
+    }
+
+    .menu-button.logout-button:active {
+      background-color: #fee2e2; /* ログアウトボタンのアクティブ時 */
+    }
+
+    /* フェードインアニメーションのキーフレーム */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* カードの初期状態（アニメーション用） */
+    .animated-card {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.5s ease-out forwards;
+      animation-delay: 0.3s; /* 少し遅れて表示 */
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+  <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-6 sm:p-8 animated-card">
+    <header class="text-center mb-8">
+      <h1 class="text-3xl font-extrabold text-blue-700 mb-2 flex items-center justify-center gap-2">
+        <span role="img" aria-label="party popper">🎉</span> 会員メニュー
+      </h1>
+      <p class="text-gray-600 text-lg">こんにちは、〇〇さん（表示名）</p>
+    </header>
+
+    <div class="space-y-4">
+      <!-- 各メニューボタン -->
+      <button onclick="location.href='event-history.html'"
+              class="menu-button w-full flex items-center p-4 bg-white hover:bg-blue-50 transition-all duration-200 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+        <span class="text-2xl mr-4">📅</span>
+        <span class="text-lg font-medium text-gray-800">イベント参加履歴を見る</span>
+      </button>
+
+      <button onclick="location.href='settings.html'"
+              class="menu-button w-full flex items-center p-4 bg-white hover:bg-blue-50 transition-all duration-200 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+        <span class="text-2xl mr-4">⚙️</span>
+        <span class="text-lg font-medium text-gray-800">配信ジャンル・頻度を変更</span>
+      </button>
+
+      <button onclick="location.href='profile.html'"
+              class="menu-button w-full flex items-center p-4 bg-white hover:bg-blue-50 transition-all duration-200 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+        <span class="text-2xl mr-4">🧾</span>
+        <span class="text-lg font-medium text-gray-800">登録情報の確認・変更</span>
+      </button>
+
+      <button onclick="location.href='survey.html'"
+              class="menu-button w-full flex items-center p-4 bg-white hover:bg-blue-50 transition-all duration-200 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+        <span class="text-2xl mr-4">📝</span>
+        <span class="text-lg font-medium text-gray-800">イベント参加申込はこちら</span>
+      </button>
+
+      <button onclick="location.href='logout.html'"
+              class="menu-button logout-button w-full flex items-center p-4 bg-white hover:bg-red-50 transition-all duration-200 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 text-red-600">
+        <span class="text-2xl mr-4">🚪</span>
+        <span class="text-lg font-medium">ログアウト</span>
+      </button>
+    </div>
+  </div>
+</body>
+</html>
