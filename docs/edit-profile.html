@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>いいねぇ隊 入力フォーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+    }
+    #loading {
+      margin-top: 2em;
+      text-align: center;
+      color: #666;
+    }
+    iframe {
+      width: 100%;
+      height: 2200px;
+      border: none;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">フォームを読み込み中です…</div>
+  <iframe id="formFrame"></iframe>
+
+  <script>
+    const liffId = "2007626441-bRzd722l"; // ← あなたのLIFF ID
+    const formBaseURL = "https://docs.google.com/forms/d/e/1FAIpQLSedShDv9zdWl_T5G7C_S3cox6myHV4ggcdPmSh14a5tXSbGSQ/viewform?embedded=true";
+
+    async function main() {
+      try {
+        await liff.init({ liffId });
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        const displayName = encodeURIComponent(profile.displayName);
+        const userId = encodeURIComponent(profile.userId);
+
+        const formURL = `${formBaseURL}&entry.1345981371=${displayName}&entry.802528278=${userId}&pageHistory=0,1,2,3,4`;
+
+        const iframe = document.getElementById("formFrame");
+        iframe.src = formURL;
+
+        iframe.onload = () => {
+          document.getElementById("loading").style.display = "none";
+          iframe.style.display = "block";
+          window.scrollTo(0, 0);
+        };
+
+      } catch (error) {
+        document.getElementById("loading").innerText = "エラーが発生しました。時間をおいて再度お試しください。";
+        console.error(error);
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>
