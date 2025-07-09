@@ -4,28 +4,271 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>登録情報の確認・変更 - いいねぇ隊</title>
+  <!-- Tailwind CSS CDNを読み込む -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Interフォントを読み込む -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    /* カスタムスタイルとTailwindのオーバーライド */
     body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(to bottom right, #e0f2fe, #bfdbfe);
+      font-family: 'Inter', sans-serif; /* Interフォントを適用 */
+      /* グラデーション背景 */
+      background: linear-gradient(to bottom right, #e0f2fe, #bfdbfe); /* 淡い青のグラデーション */
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 1rem;
+      animation: fadeIn 1s ease-out; /* フェードインアニメーション */
+    }
+
+    /* フェードインアニメーションのキーフレーム */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* カードの初期状態（アニメーション用） */
+    .animated-card {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.5s ease-out forwards;
+      animation-delay: 0.3s; /* 少し遅れて表示 */
+    }
+
+    /* ボタンのホバー/アクティブエフェクト */
+    .action-button {
+      transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.2s ease-out;
+    }
+
+    .action-button:hover {
+      transform: translateY(-2px); /* 少し上に浮き上がる */
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1); /* シャドウを強調 */
+    }
+
+    .action-button:active {
+      transform: translateY(0); /* クリック時に元の位置に戻る */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08); /* シャドウを元に戻す */
     }
   </style>
 </head>
 <body class="text-gray-800">
-  <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center">
-    <h1 class="text-3xl font-extrabold text-blue-700 mb-4">🧾 登録情報の確認・変更</h1>
-    <p class="text-lg mb-6">ここに登録情報の確認・変更フォームが表示されます。</p>
-    <button onclick="history.back()" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">
-      戻る
-    </button>
+  <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-6 sm:p-8 animated-card">
+    <h1 class="text-3xl font-extrabold text-blue-700 mb-6 text-center">🧾 登録情報の確認・変更</h1>
+
+    <!-- 登録情報表示エリア -->
+    <div id="profile-info" class="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+      <p class="text-center text-gray-500 mb-4" id="loading-message">
+        <span class="animate-spin inline-block w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full mr-2"></span>
+        登録情報を読み込み中...
+      </p>
+      <div id="profile-details" class="hidden">
+        <!-- ここにユーザーの登録情報が動的に挿入されます -->
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">LINE表示名:</label>
+          <p id="display-name" class="text-lg font-semibold text-gray-900"></p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">LINEユーザーID:</label>
+          <p id="line-user-id" class="text-sm text-gray-500 break-all"></p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">氏:</label>
+          <p id="氏" class="text-lg font-semibold text-gray-900">未登録</p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">名:</label>
+          <p id="名" class="text-lg font-semibold text-gray-900">未登録</p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">氏（ひらがな）:</label>
+          <p id="氏（ひらがな）" class="text-lg font-semibold text-gray-900">未登録</p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">名（ひらがな）:</label>
+          <p id="名（ひらがな）" class="text-lg font-semibold text-gray-900">未登録</p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">性別:</label>
+          <p id="性別" class="text-lg font-semibold text-gray-900">未登録</p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">生年月日:</label>
+          <p id="生年月日" class="text-lg font-semibold text-gray-900">未登録</p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">メールアドレス:</label>
+          <p id="メールアドレス" class="text-lg font-semibold text-gray-900">未登録</p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">所属・社名:</label>
+          <p id="所属・社名" class="text-lg font-semibold text-gray-900">未登録</p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">役職:</label>
+          <p id="役職" class="text-lg font-semibold text-gray-900">未登録</p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">静岡市とのつながり:</label>
+          <p id="静岡市とのつながり" class="text-lg font-semibold text-gray-900">未登録</p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">興味のある分野:</label>
+          <p id="興味のある分野" class="text-lg font-semibold text-gray-900">未登録</p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-600">静岡市を応援する気持ちが少しでもありますか？:</label>
+          <p id="静岡市を応援する気持ちが少しでもありますか？" class="text-lg font-semibold text-gray-900">未登録</p>
+        </div>
+      </div>
+      <p id="error-message" class="text-red-500 text-center hidden">情報の読み込みに失敗しました。</p>
+    </div>
+
+    <!-- アクションボタン -->
+    <div class="flex flex-col space-y-4">
+      <button onclick="location.href='edit-profile.html'"
+              class="action-button w-full px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-lg font-medium">
+        登録情報を変更する
+      </button>
+      <button onclick="history.back()"
+              class="action-button w-full px-6 py-3 bg-gray-300 text-gray-800 rounded-lg shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 text-lg font-medium">
+        戻る
+      </button>
+    </div>
   </div>
+
+  <!-- LIFF SDKを読み込む -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <script type="module">
+    // --- Configuration ---
+    // ここにデプロイしたGASウェブアプリのURLを貼り付けてください！
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyT3XhrTfXWeLJnsYDiBf3ZArcYpoM0_-G3ZkfhYwqxk2hcXkamahFh_H_t9VoIbeN5/exec';
+    const LIFF_ID = "2007626441-bRzd722l"; // あなたの LIFF ID
+    // --- End Configuration ---
+
+    // UI要素の取得
+    const loadingMessage = document.getElementById('loading-message');
+    const profileDetails = document.getElementById('profile-details');
+    const errorMessage = document.getElementById('error-message');
+    const displayNameEl = document.getElementById('display-name');
+    const lineUserIdEl = document.getElementById('line-user-id'); // LINEユーザーID表示用
+
+    // スプレッドシートのヘッダー名に対応する要素IDをマッピング
+    const fieldElements = {
+      "氏": document.getElementById('氏'),
+      "名": document.getElementById('名'),
+      "氏（ひらがな）": document.getElementById('氏（ひらがな）'),
+      "名（ひらがな）": document.getElementById('名（ひらがな）'),
+      "性別": document.getElementById('性別'),
+      "生年月日": document.getElementById('生年月日'),
+      "メールアドレス": document.getElementById('メールアドレス'),
+      "所属・社名": document.getElementById('所属・社名'),
+      "役職": document.getElementById('役職'),
+      "静岡市とのつながり": document.getElementById('静岡市とのつながり'),
+      "興味のある分野": document.getElementById('興味のある分野'),
+      "静岡市を応援する気持ちが少しでもありますか？": document.getElementById('静岡市を応援する気持ちが少しでもありますか？')
+    };
+
+    let currentLineUserId = null; // LIFFから取得したユーザーIDを保持
+
+    // LIFFの初期化とLINEユーザー情報の取得
+    async function initializeLiffAndFetchProfile() {
+      try {
+        await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) {
+          liff.login(); // ログインしていない場合はログインページへリダイレクト
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        currentLineUserId = profile.userId; // LINEユーザーIDを取得
+        console.log("LIFF Profile:", profile);
+
+        // LINEの表示名とユーザーIDを表示
+        if (displayNameEl) {
+          displayNameEl.innerText = profile.displayName || '不明';
+        }
+        if (lineUserIdEl) {
+          lineUserIdEl.innerText = currentLineUserId || '不明';
+        }
+
+        // LIFF認証とID取得が完了したら、GASからユーザーデータをフェッチ
+        fetchUserProfileFromGAS(currentLineUserId);
+
+      } catch (error) {
+        console.error("LIFFの初期化またはLINE情報の取得に失敗しました:", error);
+        displayErrorMessage("LINE情報の取得に失敗しました。");
+        // LIFFエラーが発生した場合でも、最低限の表示は試みる
+        if (displayNameEl) displayNameEl.innerText = '不明';
+        if (lineUserIdEl) lineUserIdEl.innerText = '不明';
+        loadingMessage.classList.add('hidden');
+      }
+    }
+
+    // GASからユーザープロファイルを取得
+    async function fetchUserProfileFromGAS(userId) {
+      if (!userId) {
+        console.error("LINE User IDが利用できません。");
+        displayErrorMessage("ユーザー情報を取得できません。LINEにログインしてください。");
+        return;
+      }
+      if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+        console.error("GAS_WEB_APP_URLが設定されていません。");
+        displayErrorMessage("GASウェブアプリのURLが設定されていません。");
+        return;
+      }
+
+      loadingMessage.classList.remove('hidden');
+      profileDetails.classList.add('hidden');
+      errorMessage.classList.add('hidden');
+
+      try {
+        // GASウェブアプリにGETリクエストを送信し、userIdをパラメータとして渡す
+        const response = await fetch(`${GAS_WEB_APP_URL}?userId=${userId}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const userData = result.data;
+          console.log("User Data from GAS:", userData);
+
+          // データをHTML要素に表示
+          for (const key in fieldElements) {
+            if (fieldElements[key]) {
+              fieldElements[key].innerText = userData[key] || '未登録';
+            }
+          }
+          profileDetails.classList.remove('hidden');
+        } else {
+          console.log("GASからユーザーデータが見つかりません:", result.message);
+          displayErrorMessage(result.message || "登録情報が見つかりませんでした。");
+          // データがない場合は、デフォルト値または「未登録」を表示
+          for (const key in fieldElements) {
+            if (fieldElements[key]) {
+              fieldElements[key].innerText = '未登録';
+            }
+          }
+          profileDetails.classList.remove('hidden'); // エラーでも表示エリアは出す
+        }
+      } catch (error) {
+        console.error("GASからのユーザーデータ取得に失敗しました:", error);
+        displayErrorMessage("登録情報の読み込み中にエラーが発生しました。ネットワーク接続を確認してください。");
+      } finally {
+        loadingMessage.classList.add('hidden'); // ローディングメッセージを非表示にする
+      }
+    }
+
+    // エラーメッセージを表示するヘルパー関数
+    function displayErrorMessage(message) {
+      errorMessage.innerText = message;
+      errorMessage.classList.remove('hidden');
+      loadingMessage.classList.add('hidden');
+      profileDetails.classList.add('hidden');
+    }
+
+    // アプリケーションの開始
+    initializeLiffAndFetchProfile();
+  </script>
 </body>
 </html>
