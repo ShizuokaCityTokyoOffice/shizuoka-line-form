@@ -58,7 +58,7 @@
       <h1 class="text-3xl font-extrabold text-blue-700 mb-2 flex items-center justify-center gap-2">
         <span role="img" aria-label="party popper">🎉</span> 会員メニュー
       </h1>
-      <p class="text-gray-600 text-lg">こんにちは、〇〇さん（表示名）</p>
+      <p class="text-gray-600 text-lg">こんにちは！</p>
     </header>
 
     <div class="space-y-4">
@@ -92,7 +92,25 @@
         <span class="text-2xl mr-4">🚪</span>
         <span class="text-lg font-medium">ログアウト</span>
       </button>
+
     </div>
   </div>
+ <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    const liffId = "2007626441-bRzd722l"; // あなたの LIFF ID
+
+    async function main() {
+      await liff.init({ liffId });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+
+      const profile = await liff.getProfile();
+      document.getElementById('greeting').innerText = `こんにちは！${profile.displayName}さん！`;
+    }
+
+    main();
+  </script>
 </body>
 </html>
