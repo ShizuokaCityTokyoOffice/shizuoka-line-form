@@ -144,7 +144,7 @@
   <script type="module">
     // --- Configuration ---
     // ここにデプロイしたGASウェブアプリのURLを貼り付けてください！
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyT3XhrTfXWeLJnsYDiBf3ZArcYpoZ0_-G3ZkfhYwqxk2hcXkamahFh_H_t9VoIbeN5/exec';
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby7ng-4rZ3rNOVoQ5VzcKuNk28huMEvMVa7XUUYsCF2AXOxwnvZt7z-PXNeXQJ_Lvc2/exec';
     const LIFF_ID = "2007626441-bRzd722l"; // あなたの LIFF ID
     // --- End Configuration ---
 
@@ -214,7 +214,8 @@
         displayErrorMessage("ユーザー情報を取得できません。LINEにログインしてください。");
         return;
       }
-      if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+      // ここはGAS_WEB_APP_URLが設定されていることを確認するだけで、YOUR_GAS_WEB_APP_URL_HEREではないことを確認
+      if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes('YOUR_GAS_WEB_APP_URL_HERE')) {
         console.error("GAS_WEB_APP_URLが設定されていません。");
         displayErrorMessage("GASウェブアプリのURLが設定されていません。");
         return;
@@ -227,6 +228,13 @@
       try {
         // GASウェブアプリにGETリクエストを送信し、userIdをパラメータとして渡す
         const response = await fetch(`${GAS_WEB_APP_URL}?userId=${userId}`);
+        // 404 Not Foundの場合もresponseは返ってくるが、okプロパティがfalseになる
+        if (!response.ok) {
+          console.error(`GASウェブアプリからの応答エラー: ${response.status} ${response.statusText}`);
+          displayErrorMessage(`データの読み込みに失敗しました。エラーコード: ${response.status} (${response.statusText})`);
+          return;
+        }
+
         const result = await response.json();
 
         if (result.success && result.data) {
