@@ -65,30 +65,30 @@
       </p>
       <div id="profile-details" class="hidden">
         <!-- ここにユーザーの登録情報が動的に挿入されます -->
-        <div class="mb-3">
-          <label class="block text-sm font-medium text-gray-600">LINE表示名:</label>
-          <p id="display-name" class="text-lg font-semibold text-gray-900"></p>
+                
+        <!-- 氏名並列表示 -->
+        <div class="flex flex-wrap gap-x-4 mb-3">
+          <div class="flex-1 min-w-0">
+            <label class="block text-sm font-medium text-gray-600">氏:</label>
+            <p id="氏" class="text-lg font-semibold text-gray-900">未登録</p>
+          </div>
+          <div class="flex-1 min-w-0">
+            <label class="block text-sm font-medium text-gray-600">名:</label>
+            <p id="名" class="text-lg font-semibold text-gray-900">未登録</p>
+          </div>
         </div>
-        <div class="mb-3">
-          <label class="block text-sm font-medium text-gray-600">LINEユーザーID:</label>
-          <p id="line-user-id" class="text-sm text-gray-500 break-all"></p>
+
+        <div class="flex flex-wrap gap-x-4 mb-3">
+          <div class="flex-1 min-w-0">
+            <label class="block text-sm font-medium text-gray-600">氏（ひらがな）:</label>
+            <p id="氏（ひらがな）" class="text-lg font-semibold text-gray-900">未登録</p>
+          </div>
+          <div class="flex-1 min-w-0">
+            <label class="block text-sm font-medium text-gray-600">名（ひらがな）:</label>
+            <p id="名（ひらがな）" class="text-lg font-semibold text-gray-900">未登録</p>
+          </div>
         </div>
-        <div class="mb-3">
-          <label class="block text-sm font-medium text-gray-600">氏:</label>
-          <p id="氏" class="text-lg font-semibold text-gray-900">未登録</p>
-        </div>
-        <div class="mb-3">
-          <label class="block text-sm font-medium text-gray-600">名:</label>
-          <p id="名" class="text-lg font-semibold text-gray-900">未登録</p>
-        </div>
-        <div class="mb-3">
-          <label class="block text-sm font-medium text-gray-600">氏（ひらがな）:</label>
-          <p id="氏（ひらがな）" class="text-lg font-semibold text-gray-900">未登録</p>
-        </div>
-        <div class="mb-3">
-          <label class="block text-sm font-medium text-gray-600">名（ひらがな）:</label>
-          <p id="名（ひらがな）" class="text-lg font-semibold text-gray-900">未登録</p>
-        </div>
+
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-600">性別:</label>
           <p id="性別" class="text-lg font-semibold text-gray-900">未登録</p>
@@ -116,10 +116,6 @@
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-600">興味のある分野:</label>
           <p id="興味のある分野" class="text-lg font-semibold text-gray-900">未登録</p>
-        </div>
-        <div class="mb-3">
-          <label class="block text-sm font-medium text-gray-600">静岡市を応援する気持ちが少しでもありますか？:</label>
-          <p id="静岡市を応援する気持ちが少しでもありますか？" class="text-lg font-semibold text-gray-900">未登録</p>
         </div>
       </div>
       <p id="error-message" class="text-red-500 text-center hidden">情報の読み込みに失敗しました。</p>
@@ -244,7 +240,18 @@
           // データをHTML要素に表示
           for (const key in fieldElements) {
             if (fieldElements[key]) {
-              fieldElements[key].innerText = userData[key] || '未登録';
+              // 生年月日の特別処理
+              if (key === "生年月日" && userData[key]) {
+                const dateValue = new Date(userData[key]);
+                // Dateオブジェクトが有効な日付を表しているか確認
+                if (!isNaN(dateValue)) {
+                  fieldElements[key].innerText = dateValue.toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
+                } else {
+                  fieldElements[key].innerText = userData[key] + ' (不正な日付形式)'; // エラー表示
+                }
+              } else {
+                fieldElements[key].innerText = userData[key] || '未登録';
+              }
             }
           }
           profileDetails.classList.remove('hidden');
