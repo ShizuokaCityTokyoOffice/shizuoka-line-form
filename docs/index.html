@@ -9,19 +9,32 @@
   <h2>ログイン中です...</h2>
 
   <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbx5Jy2t_fXXbtJZ0KgrmYAY7uJI7v-Etau9QkrgN-XPAd1i3G_a5d4BTXfpK9TOLEgY/exec";
+
     async function main() {
-      await liff.init({ liffId: "2007626441-bRzd722l" });
+      await liff.init({ liffId: "2007626441-bRzd722l" });  // あなたのLIFF ID
       if (!liff.isLoggedIn()) {
         liff.login();
         return;
       }
 
       const profile = await liff.getProfile();
-      const displayName = encodeURIComponent(profile.displayName);
       const userId = encodeURIComponent(profile.userId);
 
-      // リダイレクト：表示名とuserIdをURLパラメータとしてform.htmlへ渡す
-      location.href = `form.html?displayName=${displayName}&userId=${userId}`;
+      // 会員チェックAPIへ問い合わせ
+      try {
+        const res = await fetch(`${GAS_URL}?userId=${userId}`);
+        const result = await res.json();
+
+        if (result.isMember) {
+          location.href = "menber.html";  // 会員の場合
+        } else {
+          location.href = "notmenber.html";  // 非会員の場合
+        }
+      } catch (error) {
+        console.error("API error:", error);
+        alert("エラーが発生しました。時間をおいて再度お試しください。");
+      }
     }
 
     main();
