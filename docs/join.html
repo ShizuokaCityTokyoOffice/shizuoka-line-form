@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>イベント参加申し込み</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+    }
+    #loading {
+      margin-top: 2em;
+      text-align: center;
+      color: #666;
+    }
+    iframe {
+      width: 100%;
+      height: 2200px;
+      border: none;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">フォームを読み込み中です…</div>
+  <iframe id="formFrame"></iframe>
+
+  <script>
+    // 設定
+    const liffId = "2007626441-bRzd722l"; // あなたの LIFF ID
+    const formBaseURL = "https://docs.google.com/forms/d/e/1FAIpQLSe9Vqr49ns-lfL9Pf7j7WOr0WpV2NwDCFanuBpXANW2G54SyA/viewform?embedded=true";
+
+    // Googleフォームの entry ID をここに設定
+    const ENTRY_DISPLAY_NAME = "entry.1345981371"; // 表示名の entry ID
+    const ENTRY_USER_ID = "entry.802528278"; // ユーザーIDの entry ID
+    const ENTRY_EVENT_NAME = "entry.2113127153"; // イベント名の entry ID
+    const ENTRY_EVENT_DATE = "	entry.605954855"; // 開催日の entry ID
+
+    // このHTMLファイルに固定で設定するイベント情報
+    const EVENT_NAME = encodeURIComponent("しずおかサミット2025");
+    const EVENT_DATE = encodeURIComponent("2025/10/12");
+
+    async function main() {
+      try {
+        await liff.init({ liffId });
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        const displayName = encodeURIComponent(profile.displayName);
+        const userId = encodeURIComponent(profile.userId);
+
+        // GoogleフォームのURLに事前入力値を付与
+        const formURL = `${formBaseURL}`
+          + `&${ENTRY_DISPLAY_NAME}=${displayName}`
+          + `&${ENTRY_USER_ID}=${userId}`
+          + `&${ENTRY_EVENT_NAME}=${EVENT_NAME}`
+          + `&${ENTRY_EVENT_DATE}=${EVENT_DATE}`
+          + `&pageHistory=0,1,2,3,4`; // Googleフォーム埋め込み時に sometimes 必要なパラメータ
+
+        const iframe = document.getElementById("formFrame");
+        iframe.src = formURL;
+
+        iframe.onload = () => {
+          document.getElementById("loading").style.display = "none";
+          iframe.style.display = "block";
+          window.scrollTo(0, 0);
+        };
+
+      } catch (error) {
+        document.getElementById("loading").innerText = "エラーが発生しました。時間をおいて再度お試しください。";
+        console.error(error);
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>
