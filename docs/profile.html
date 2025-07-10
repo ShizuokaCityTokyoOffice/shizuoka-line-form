@@ -140,7 +140,7 @@
   <script type="module">
     // --- Configuration ---
     // ここにデプロイしたGASウェブアプリのURLを貼り付けてください！
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby7ng-4rZ3rNOVoQ5VzcKuNk28huMEvMVa7XUUYsCF2AXOxwnvZt7z-PXNeXQJ_Lvc2/exec';
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxaW3xZhMTrX3q_Ey-5Z2XN4VNExvAgjAxpWVfMSvdGoCTYZEh6C_RS8pg-G8vW0qKG/exec';
     const LIFF_ID = "2007626441-bRzd722l"; // あなたの LIFF ID
     // --- End Configuration ---
 
@@ -148,8 +148,8 @@
     const loadingMessage = document.getElementById('loading-message');
     const profileDetails = document.getElementById('profile-details');
     const errorMessage = document.getElementById('error-message');
-    const displayNameEl = document.getElementById('display-name');
-    const lineUserIdEl = document.getElementById('line-user-id'); // LINEユーザーID表示用
+    // const displayNameEl = document.getElementById('display-name'); // 現在のHTMLにはないためコメントアウト
+    // const lineUserIdEl = document.getElementById('line-user-id'); // 現在のHTMLにはないためコメントアウト
 
     // スプレッドシートのヘッダー名に対応する要素IDをマッピング
     const fieldElements = {
@@ -182,35 +182,37 @@
         currentLineUserId = profile.userId; // LINEユーザーIDを取得
         console.log("LIFF Profile:", profile);
 
-        // LINEの表示名とユーザーIDを表示
-        if (displayNameEl) {
-          displayNameEl.innerText = profile.displayName || '不明';
-        }
-        if (lineUserIdEl) {
-          lineUserIdEl.innerText = currentLineUserId || '不明';
+        // IDトークンを取得
+        const idToken = liff.getIDToken();
+        if (!idToken) {
+          console.error("IDトークンが取得できませんでした。");
+          displayErrorMessage("IDトークン取得失敗。LINEに再ログインしてください。");
+          loadingMessage.classList.add('hidden'); // エラー時はローディングメッセージを非表示に
+          return;
         }
 
         // LIFF認証とID取得が完了したら、GASからユーザーデータをフェッチ
-        fetchUserProfileFromGAS(currentLineUserId);
+        fetchUserProfileFromGAS(currentLineUserId, idToken); // idTokenを渡すように変更
 
       } catch (error) {
         console.error("LIFFの初期化またはLINE情報の取得に失敗しました:", error);
         displayErrorMessage("LINE情報の取得に失敗しました。");
-        // LIFFエラーが発生した場合でも、最低限の表示は試みる
-        if (displayNameEl) displayNameEl.innerText = '不明';
-        if (lineUserIdEl) lineUserIdEl.innerText = '不明';
         loadingMessage.classList.add('hidden');
       }
     }
 
     // GASからユーザープロファイルを取得
-    async function fetchUserProfileFromGAS(userId) {
+    async function fetchUserProfileFromGAS(userId, idToken) { // idTokenを受け取るように変更
       if (!userId) {
         console.error("LINE User IDが利用できません。");
         displayErrorMessage("ユーザー情報を取得できません。LINEにログインしてください。");
         return;
       }
-      // ここはGAS_WEB_APP_URLが設定されていることを確認するだけで、YOUR_GAS_WEB_APP_URL_HEREではないことを確認
+      if (!idToken) { // idTokenの存在チェックを追加
+        console.error("IDトークンが利用できません。");
+        displayErrorMessage("IDトークンが利用できません。LINEに再ログインしてください。");
+        return;
+      }
       if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes('YOUR_GAS_WEB_APP_URL_HERE')) {
         console.error("GAS_WEB_APP_URLが設定されていません。");
         displayErrorMessage("GASウェブアプリのURLが設定されていません。");
@@ -222,9 +224,9 @@
       errorMessage.classList.add('hidden');
 
       try {
-        // GASウェブアプリにGETリクエストを送信し、userIdをパラメータとして渡す
-        const response = await fetch(`${GAS_WEB_APP_URL}?userId=${userId}`);
-        // 404 Not Foundの場合もresponseは返ってくるが、okプロパティがfalseになる
+        // GASウェブアプリにGETリクエストを送信し、userIdとidTokenをパラメータとして渡す
+        const response = await fetch(`${GAS_WEB_APP_URL}?userId=${userId}&idToken=${idToken}`);
+        
         if (!response.ok) {
           console.error(`GASウェブアプリからの応答エラー: ${response.status} ${response.statusText}`);
           displayErrorMessage(`データの読み込みに失敗しました。エラーコード: ${response.status} (${response.statusText})`);
