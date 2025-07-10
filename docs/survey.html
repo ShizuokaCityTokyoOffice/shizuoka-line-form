@@ -19,50 +19,27 @@
       justify-content: center;
       padding: 1rem;
     }
-    /* モーダル背景 */
-    .modal-overlay {
+    /* カスタムメッセージボックスのスタイル */
+    .custom-message-box {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
+      background-color: rgba(0, 0, 0, 0.5);
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 1000;
     }
-    /* モーダルコンテンツ */
-    .modal-content {
+    .custom-message-content {
       background-color: white;
-      padding: 1rem;
-      border-radius: 0.75rem; /* rounded-xl */
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-xl */
-      width: 90%;
-      max-width: 600px;
-      height: 90%;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden; /* iframeがはみ出さないように */
-    }
-    .modal-iframe {
-      flex-grow: 1; /* iframeが残りのスペースを埋める */
-      border: none;
-      width: 100%;
-      height: 100%; /* 親要素の高さに合わせる */
-    }
-    .loading-spinner {
-      border: 4px solid rgba(0, 0, 0, 0.1);
-      border-top: 4px solid #3b82f6; /* blue-500 */
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 2rem auto;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      max-width: 90%;
+      width: 300px;
     }
   </style>
 </head>
@@ -79,18 +56,6 @@
     <button onclick="history.back()" class="mt-8 px-6 py-3 bg-gray-300 text-gray-800 rounded-lg shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 text-lg font-medium">
       戻る
     </button>
-  </div>
-
-  <!-- イベント申込フォーム用モーダル -->
-  <div id="application-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-      <div class="flex justify-between items-center mb-4">
-        <h2 id="modal-title" class="text-xl font-bold text-blue-700">イベント申込フォーム</h2>
-        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
-      </div>
-      <div id="modal-loading" class="loading-spinner"></div>
-      <iframe id="modal-iframe" class="modal-iframe hidden" onload="hideModalLoading()"></iframe>
-    </div>
   </div>
 
   <!-- LIFF SDKを読み込む -->
@@ -144,12 +109,9 @@
 
     // UI要素の取得
     const eventListContainer = document.getElementById('event-list');
-    const applicationModal = document.getElementById('application-modal');
-    const modalIframe = document.getElementById('modal-iframe');
-    const modalLoading = document.getElementById('modal-loading');
-    const modalTitle = document.getElementById('modal-title');
 
-    let liffProfile = null; // LIFFプロフィール情報を保持
+    // LIFFプロフィール情報を保持（今回は直接使用しないが、liff.login()のために必要）
+    let liffProfile = null; 
 
     /**
      * LIFFの初期化とプロフィール情報の取得を行います。
@@ -163,13 +125,12 @@
           return;
         }
 
-        liffProfile = await liff.getProfile();
+        liffProfile = await liff.getProfile(); // プロフィール情報を取得（今回は直接使わないが、取得はしておく）
         console.log("LIFF Profile:", liffProfile);
 
         renderEvents(); // LIFF初期化後、イベントリストをレンダリング
       } catch (error) {
         console.error("LIFFの初期化に失敗しました:", error);
-        // エラーメッセージをユーザーに表示するなどの処理
         eventListContainer.innerHTML = '<p class="text-red-500">LIFFの初期化に失敗しました。時間をおいて再度お試しください。</p>';
       }
     }
@@ -186,7 +147,7 @@
             <p class="text-gray-600 mb-2">🗓️ ${event.date}</p>
             <p class="text-gray-700 text-sm mb-4 flex-grow">${event.description}</p>
             <div class="flex flex-col space-y-2 w-full">
-              <button onclick="openApplicationForm('${event.id}')"
+              <button onclick="location.href='join.html?eventId=${event.id}'"
                       class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-base font-medium">
                 申込み
               </button>
@@ -207,66 +168,14 @@
      */
     function showCustomMessage(message) {
       const messageDiv = document.createElement('div');
-      messageDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      messageDiv.className = 'custom-message-box'; // スタイルを適用
       messageDiv.innerHTML = `
-        <div class="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm mx-auto">
-          <p class="text-lg text-gray-800 mb-4">${message}</p>
+        <div class="custom-message-content">
+          <p class="text-lg text-gray-800 mb-4 whitespace-pre-wrap">${message}</p>
           <button onclick="this.parentNode.parentNode.remove()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">OK</button>
         </div>
       `;
       document.body.appendChild(messageDiv);
-    }
-
-    /**
-     * イベント申込フォームをモーダルで開きます。
-     * @param {string} eventId - 開くイベントのID
-     */
-    async function openApplicationForm(eventId) {
-      const event = events.find(e => e.id === eventId);
-      if (!event) {
-        console.error("指定されたイベントが見つかりません:", eventId);
-        showCustomMessage("エラー: イベント情報が見つかりませんでした。");
-        return;
-      }
-
-      if (!liffProfile) {
-        showCustomMessage("エラー: LINEプロフィール情報が取得できませんでした。再読み込みしてください。");
-        return;
-      }
-
-      modalTitle.innerText = `${event.name} 申込フォーム`;
-      modalLoading.classList.remove('hidden');
-      modalIframe.classList.add('hidden');
-      applicationModal.classList.remove('hidden'); // モーダルを表示
-
-      const displayName = encodeURIComponent(liffProfile.displayName);
-      const userId = encodeURIComponent(liffProfile.userId);
-
-      // GoogleフォームのURLに事前入力値を付与
-      const formURL = `${event.googleFormBaseUrl}`
-        + `&${event.entryDisplayNameId}=${displayName}`
-        + `&${event.entryUserIdId}=${userId}`
-        + `&${event.entryEventNameId}=${encodeURIComponent(event.name)}`
-        + `&${event.entryEventDateId}=${encodeURIComponent(event.date)}`
-        + `&pageHistory=0,1,2,3,4`; // Googleフォーム埋め込み時に sometimes 必要なパラメータ
-
-      modalIframe.src = formURL;
-    }
-
-    /**
-     * モーダルのiframe読み込み完了時にローディングを非表示にします。
-     */
-    function hideModalLoading() {
-      modalLoading.classList.add('hidden');
-      modalIframe.classList.remove('hidden');
-    }
-
-    /**
-     * モーダルを閉じます。
-     */
-    function closeModal() {
-      applicationModal.classList.add('hidden');
-      modalIframe.src = 'about:blank'; // iframeの内容をクリア
     }
 
     /**
