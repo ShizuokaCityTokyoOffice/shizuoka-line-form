@@ -240,17 +240,21 @@
           // データをHTML要素に表示
           for (const key in fieldElements) {
             if (fieldElements[key]) {
+              const value = userData[key];
               // 生年月日の特別処理
-              if (key === "生年月日" && userData[key]) {
-                const dateValue = new Date(userData[key]);
+              if (key === "生年月日" && value) {
+                const dateValue = new Date(value);
                 // Dateオブジェクトが有効な日付を表しているか確認
                 if (!isNaN(dateValue)) {
                   fieldElements[key].innerText = dateValue.toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
                 } else {
-                  fieldElements[key].innerText = userData[key] + ' (不正な日付形式)'; // エラー表示
+                  fieldElements[key].innerText = value + ' (不正な日付形式)'; // エラー表示
                 }
+              } else if ((key === "静岡市とのつながり" || key === "興味のある分野") && value) {
+                // 「静岡市とのつながり」と「興味のある分野」はカンマで分割し、<br>で結合してinnerHTMLに設定
+                fieldElements[key].innerHTML = value.split(',').join('<br>') || '未登録';
               } else {
-                fieldElements[key].innerText = userData[key] || '未登録';
+                fieldElements[key].innerText = value || '未登録';
               }
             }
           }
