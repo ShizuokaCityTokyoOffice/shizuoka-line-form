@@ -17,15 +17,156 @@
       justify-content: center;
       padding: 1rem;
     }
+    /* カスタムメッセージボックスのスタイル */
+    .custom-message-box {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .custom-message-content {
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      max-width: 90%;
+      width: 300px;
+    }
   </style>
 </head>
 <body class="text-gray-800">
   <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center">
     <h1 class="text-3xl font-extrabold text-blue-700 mb-4">📅 イベント参加履歴</h1>
-    <p class="text-lg mb-6">ここにイベント参加履歴が表示されます。</p>
-    <button onclick="history.back()" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">
+    
+    <div id="loading-message" class="text-center text-gray-500 mb-4">
+      <span class="animate-spin inline-block w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full mr-2"></span>
+      参加履歴を読み込み中...
+    </div>
+
+    <div id="event-history-list" class="space-y-4 text-left hidden">
+      <!-- イベント参加履歴がここに動的に挿入されます -->
+    </div>
+
+    <p id="no-history-message" class="text-gray-600 hidden">まだ参加履歴はありません。</p>
+    <p id="error-message" class="text-red-500 hidden">履歴の読み込みに失敗しました。</p>
+
+    <button onclick="history.back()" class="mt-8 px-6 py-3 bg-gray-300 text-gray-800 rounded-lg shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 text-lg font-medium">
       戻る
     </button>
   </div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script type="module">
+    // --- Configuration ---
+    const LIFF_ID = "2007626441-bRzd722l"; // あなたの LIFF ID
+    // !!! ここに上記のGASスクリプトをデプロイしたURLを貼り付けてください !!!
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbycag6U7PzhHEfRswp8HlBjb3zcpqM-8dUFCLTbl7IjUG3Rq0mV0filn4zU5GdNf8W/exec"; 
+    // --- End Configuration ---
+
+    // UI elements
+    const loadingMessage = document.getElementById('loading-message');
+    const eventHistoryList = document.getElementById('event-history-list');
+    const noHistoryMessage = document.getElementById('no-history-message');
+    const errorMessage = document.getElementById('error-message');
+
+    /**
+     * Custom message box function (replaces alert).
+     * @param {string} message - Message to display.
+     */
+    function showCustomMessage(message) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'custom-message-box';
+      messageDiv.innerHTML = `
+        <div class="custom-message-content">
+          <p class="text-lg text-gray-800 mb-4 whitespace-pre-wrap">${message}</p>
+          <button onclick="this.parentNode.parentNode.remove()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">OK</button>
+        </div>
+      `;
+      document.body.appendChild(messageDiv);
+    }
+
+    /**
+     * Initializes LIFF and fetches event history from GAS.
+     */
+    async function initializeLiffAndFetchHistory() {
+      loadingMessage.classList.remove('hidden');
+      eventHistoryList.classList.add('hidden');
+      noHistoryMessage.classList.add('hidden');
+      errorMessage.classList.add('hidden');
+
+      try {
+        await liff.init({ liffId: LIFF_ID });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        const userId = profile.userId;
+        const idToken = liff.getIDToken();
+
+        if (!userId || !idToken) {
+          showCustomMessage("LINEユーザー情報またはIDトークンが取得できませんでした。再読み込みしてください。");
+          loadingMessage.classList.add('hidden');
+          return;
+        }
+
+        if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes('YOUR_GAS_WEB_APP_URL_HERE')) {
+          showCustomMessage("GASウェブアプリのURLが設定されていません。");
+          loadingMessage.classList.add('hidden');
+          return;
+        }
+
+        // Fetch event history from GAS
+        const response = await fetch(`${GAS_WEB_APP_URL}?userId=${userId}&idToken=${idToken}`);
+        
+        if (!response.ok) {
+          const errorText = await response.text(); // Get raw error response
+          console.error(`GASウェブアプリからの応答エラー: ${response.status} ${response.statusText} - ${errorText}`);
+          showCustomMessage(`履歴の読み込みに失敗しました。エラーコード: ${response.status} (${response.statusText})`);
+          errorMessage.classList.remove('hidden');
+          return;
+        }
+
+        const result = await response.json();
+
+        if (result.success && result.data && result.data.length > 0) {
+          // Sort events by date in descending order (newest first)
+          result.data.sort((a, b) => new Date(b.eventDate) - new Date(a.eventDate));
+
+          eventHistoryList.innerHTML = ''; // Clear previous content
+          result.data.forEach(event => {
+            const eventCard = `
+              <div class="bg-blue-50 rounded-lg shadow-sm p-4 border border-blue-200">
+                <p class="text-sm text-gray-600">開催日: <span class="font-semibold text-gray-800">${event.eventDate}</span></p>
+                <p class="text-lg font-bold text-blue-700">${event.eventName}</p>
+              </div>
+            `;
+            eventHistoryList.innerHTML += eventCard;
+          });
+          eventHistoryList.classList.remove('hidden');
+        } else {
+          noHistoryMessage.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error("イベント履歴の取得に失敗しました:", error);
+        showCustomMessage("イベント履歴の読み込み中にエラーが発生しました。ネットワーク接続を確認してください。");
+        errorMessage.classList.remove('hidden');
+      } finally {
+        loadingMessage.classList.add('hidden');
+      }
+    }
+
+    // Start the application
+    initializeLiffAndFetchHistory();
+  </script>
 </body>
 </html>
