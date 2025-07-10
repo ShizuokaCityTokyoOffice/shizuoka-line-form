@@ -202,6 +202,22 @@
     }
 
     /**
+     * カスタムメッセージボックスを表示します。（alertの代替）
+     * @param {string} message - 表示するメッセージ
+     */
+    function showCustomMessage(message) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      messageDiv.innerHTML = `
+        <div class="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm mx-auto">
+          <p class="text-lg text-gray-800 mb-4">${message}</p>
+          <button onclick="this.parentNode.parentNode.remove()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">OK</button>
+        </div>
+      `;
+      document.body.appendChild(messageDiv);
+    }
+
+    /**
      * イベント申込フォームをモーダルで開きます。
      * @param {string} eventId - 開くイベントのID
      */
@@ -209,12 +225,12 @@
       const event = events.find(e => e.id === eventId);
       if (!event) {
         console.error("指定されたイベントが見つかりません:", eventId);
-        alert("エラー: イベント情報が見つかりませんでした。"); // カスタムメッセージボックスに置き換える
+        showCustomMessage("エラー: イベント情報が見つかりませんでした。");
         return;
       }
 
       if (!liffProfile) {
-        alert("エラー: LINEプロフィール情報が取得できませんでした。再読み込みしてください。"); // カスタムメッセージボックスに置き換える
+        showCustomMessage("エラー: LINEプロフィール情報が取得できませんでした。再読み込みしてください。");
         return;
       }
 
@@ -254,15 +270,15 @@
     }
 
     /**
-     * イベント詳細を表示します。（現在はアラート）
+     * イベント詳細を表示します。（現在はカスタムメッセージボックス）
      * @param {string} eventId - 詳細を表示するイベントのID
      */
     function showEventDetails(eventId) {
       const event = events.find(e => e.id === eventId);
       if (event) {
-        alert(`イベント名: ${event.name}\n開催日: ${event.date}\n\n${event.description}`); // カスタムメッセージボックスに置き換える
+        showCustomMessage(`イベント名: ${event.name}\n開催日: ${event.date}\n\n${event.description}`);
       } else {
-        alert("イベント情報が見つかりませんでした。"); // カスタムメッセージボックスに置き換える
+        showCustomMessage("イベント情報が見つかりませんでした。");
       }
     }
 
