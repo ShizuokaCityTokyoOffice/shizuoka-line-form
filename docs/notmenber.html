@@ -35,6 +35,11 @@
       transform: translateY(0); /* クリック時に元の位置に戻る */
       box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* シャドウを元に戻す */
     }
+
+    /* LINEに戻るボタンのアクティブ時 (register.htmlからコピー) */
+    .back-to-line-button:active {
+      background-color: #cce7ff; /* 少し濃い青 */
+    }
   </style>
 </head>
 <body class="text-gray-800">
@@ -48,19 +53,50 @@
     </p>
 
     <div class="space-y-4">
-      <!-- 会員登録を促すボタン -->
+      <!-- 新規会員登録を促すボタン -->
       <button onclick="location.href='form.html'"
               class="action-button w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
         <span class="text-xl mr-2">✨</span> 新規会員登録はこちら
       </button>
 
-      <!-- トップページに戻るボタン -->
+      <!-- LINEに戻るボタン -->
       <button onclick="closeLiffApp()"
-              class="menu-button back-to-line-button w-full flex items-center p-4 bg-white hover:bg-blue-50 transition-all duration-200 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-blue-600">
-        <span class="text-2xl mr-4">↩️</span> <!-- 戻る矢印の絵文字に変更 -->
+              class="action-button w-full flex items-center justify-center p-4 bg-white hover:bg-blue-50 transition-all duration-200 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-blue-600">
+        <span class="text-2xl mr-4">↩️</span>
         <span class="text-lg font-medium">LINEに戻る</span>
       </button>
     </div>
   </div>
+
+  <!-- LIFF SDKを読み込む -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    const liffId = "2007626441-bRzd722l"; // あなたの LIFF ID
+
+    async function initLiff() {
+      try {
+        await liff.init({ liffId });
+        // LIFFが初期化されたが、このページではログイン状態のチェックは必須ではない
+        // 必要であれば liff.isLoggedIn() を使ってログイン状態を確認し、リダイレクトなどの処理を追加
+      } catch (error) {
+        console.error("LIFF initialization failed", error);
+        // エラーが発生しても、ボタンは表示されるようにする
+      }
+    }
+
+    // LIFFアプリを閉じる関数
+    function closeLiffApp() {
+      if (liff.isInClient()) { // LIFFブラウザ内で実行されている場合のみ閉じる
+        liff.closeWindow();
+      } else {
+        // LIFFブラウザ外で実行されている場合のメッセージ（開発用）
+        console.log("LIFFブラウザ外で実行されているため、ウィンドウを閉じることができません。");
+        // ユーザー体験のためアラートは表示しない
+      }
+    }
+
+    // LIFFの初期化を開始
+    initLiff();
+  </script>
 </body>
 </html>
