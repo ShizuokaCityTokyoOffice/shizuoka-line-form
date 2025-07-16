@@ -1,5 +1,5 @@
 # shizuoka-line-form
-静岡市LINEログインフォーム用
+静岡市LINEログインフォーム用だよ
 
 2025/07/02  17:25             2,423 dammy.html 開発中の画面
 2025/07/02  16:37             1,193 event-history.html　イベント参加記録
