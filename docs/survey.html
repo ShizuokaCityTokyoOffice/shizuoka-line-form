@@ -41,61 +41,10 @@
       max-width: 90%;
       width: 300px;
     }
-    /* ローディング表示コンテナのスタイル */
-    .loading-container {
-      text-align: center;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      max-width: 90%;
-      width: 400px;
-      box-sizing: border-box;
-      animation: fadeIn 0.5s ease-out;
-      display: flex; /* Flexboxを使って中央揃え */
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 150px; /* ある程度の高さを確保 */
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .spinner {
-      border: 4px solid rgba(0, 0, 0, 0.1);
-      border-top: 4px solid #4299e1; /* Tailwind blue-500 */
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 15px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .error-message {
-      color: #e53e3e; /* Tailwind red-600 */
-      margin-top: 15px;
-      font-weight: bold;
-      font-size: 1.1em;
-      line-height: 1.5;
-    }
-    .hidden {
-      display: none;
-    }
   </style>
 </head>
 <body class="text-gray-800">
-  <div id="loading-overlay" class="loading-container absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-    <div class="spinner"></div>
-    <h2 class="text-xl font-bold mb-2">読み込み中...</h2>
-    <p id="status-message" class="text-gray-700">LIFFを初期化しています。</p>
-    <p id="error-display" class="error-message hidden"></p>
-  </div>
-
-  <div id="main-content" class="max-w-3xl w-full bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center mb-6 hidden">
+  <div class="max-w-3xl w-full bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center mb-6">
     <h1 class="text-3xl font-extrabold text-blue-700 mb-6">🗓️ イベント申込</h1>
     <p class="text-lg mb-8">参加したいイベントを選んでお申し込みください。</p>
 
@@ -114,11 +63,13 @@
 
   <script type="module">
     // --- 設定 ---
-    const LIFF_ID = "2007626441-bRzd722l"; // あなたの LIFF ID
+      const LIFF_ID = "2007626441-bRzd722l"; // あなたの LIFF ID
     // LogoフォームのユーザーIDに対応するパラメータ名
     const LOGO_FORM_USER_ID_PARAM = "r[11:text]";
-
+    
     // イベントデータ配列
+    // 各イベントに対応するGoogleフォームのURLとentry IDを設定してください。
+    // entry IDはGoogleフォームの「事前入力URLを取得」機能で確認できます。
     const events = [
       {
         id: 'shizuoka-summit-2025',
@@ -145,97 +96,30 @@
     // --- 設定ここまで ---
 
     // UI要素の取得
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const statusMessage = document.getElementById('status-message');
-    const errorDisplay = document.getElementById('error-display');
-    const mainContent = document.getElementById('main-content');
     const eventListContainer = document.getElementById('event-list');
 
-    // LIFFプロフィール情報を保持
+    // LIFFプロフィール情報を保持（今回は直接使用しないが、liff.login()のために必要）
     let liffProfile = null; 
-
-    /**
-     * カスタムメッセージボックスを表示します。（alertの代替）
-     * @param {string} message - 表示するメッセージ
-     */
-    function showCustomMessage(message) {
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'custom-message-box'; // スタイルを適用
-      messageDiv.innerHTML = `
-        <div class="custom-message-content">
-          <p class="text-lg text-gray-800 mb-4 whitespace-pre-wrap">${message}</p>
-          <button onclick="this.parentNode.parentNode.remove()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">OK</button>
-        </div>
-      `;
-      document.body.appendChild(messageDiv);
-    }
-
-    /**
-     * エラーメッセージを表示し、ローディングを非表示にします。
-     * @param {string} message - 表示するエラーメッセージ
-     */
-    function displayError(message) {
-      console.error("エラー表示:", message);
-      statusMessage.classList.add('hidden'); // ステータスメッセージを非表示に
-      errorDisplay.innerText = message;      // エラーメッセージを設定
-      errorDisplay.classList.remove('hidden'); // エラーメッセージを表示
-      loadingOverlay.querySelector('.spinner').style.display = 'none'; // スピナーを非表示に
-      showCustomMessage(message); // カスタムメッセージボックスでも表示
-    }
 
     /**
      * LIFFの初期化とプロフィール情報の取得を行います。
      */
     async function initializeLiff() {
       try {
-        statusMessage.innerText = "LIFFを初期化しています...";
-        console.log("LIFF初期化を開始します。LIFF ID:", LIFF_ID);
-        
         await liff.init({ liffId: LIFF_ID });
-        console.log("LIFF初期化が完了しました。");
 
-        // LIFFがLINEアプリ内で動作しているか確認
-        if (!liff.isInClient()) {
-          displayError("このページはLINEアプリ内で開いてください。");
+        if (!liff.isLoggedIn()) {
+          liff.login(); // ログインしていない場合はログインページへリダイレクト
           return;
         }
 
-        statusMessage.innerText = "LINEログイン状態を確認しています...";
-        if (!liff.isLoggedIn()) {
-          console.log("ユーザーはログインしていません。LINEログインを開始します。");
-          statusMessage.innerText = "LINEにログインしています...";
-          liff.login(); // 未ログインの場合はログインページへリダイレクト
-          return; // ログイン後、ページがリロードされるため、ここで処理を終了
-        }
-        console.log("ユーザーはLINEにログイン済みです。");
-
-        statusMessage.innerText = "LINEプロフィール情報を取得しています...";
-        liffProfile = await liff.getProfile();
+        liffProfile = await liff.getProfile(); // プロフィール情報を取得（今回は直接使わないが、取得はしておく）
         console.log("LIFF Profile:", liffProfile);
 
-        // userIdが取得できない場合はエラーを表示
-        if (!liffProfile || !liffProfile.userId) {
-          console.error("LINEユーザーIDが取得できませんでした。LIFFアプリの権限設定を確認してください。");
-          displayError("LINEユーザーIDが取得できませんでした。\nLIFFアプリの権限設定（Scope: profile）をご確認ください。");
-          return;
-        }
-
-        // ローディングオーバーレイを非表示にし、メインコンテンツを表示
-        loadingOverlay.classList.add('hidden');
-        mainContent.classList.remove('hidden');
-        renderEvents(); 
-
+        renderEvents(); // LIFF初期化後、イベントリストをレンダリング
       } catch (error) {
-        console.error("LIFFの初期化またはプロフィール取得に失敗しました:", error);
-        let errorMessage = "エラーが発生しました。時間をおいて再度お試しください。";
-        if (error.code === '2000' || error.message.includes('LIFF ID is not valid')) {
-          errorMessage = "LIFF IDが正しくありません。\nLINE DevelopersコンソールでLIFF IDを確認してください。";
-        } else if (error.message.includes('network error')) {
-          errorMessage = "ネットワークエラーが発生しました。\nインターネット接続を確認してください。";
-        } else if (error.message.includes('not in LINE environment')) {
-          errorMessage = "このページはLINEアプリ内で開いてください。";
-        }
-        displayError(errorMessage + "\n詳細: " + error.message);
+        console.error("LIFFの初期化に失敗しました:", error);
+        eventListContainer.innerHTML = '<p class="text-red-500">LIFFの初期化に失敗しました。時間をおいて再度お試しください。</p>';
       }
     }
 
@@ -244,16 +128,6 @@
      */
     function renderEvents() {
       eventListContainer.innerHTML = ''; // 既存のコンテンツをクリア
-
-      // liffProfileが取得できていない場合は処理を中断
-      if (!liffProfile || !liffProfile.userId) {
-        console.warn("LIFFプロフィール情報が利用できません。イベントリストをレンダリングできません。");
-        eventListContainer.innerHTML = '<p class="text-red-500 col-span-full">ユーザー情報が取得できないため、イベント情報を表示できません。</p>';
-        return;
-      }
-
-      const encodedUserId = encodeURIComponent(liffProfile.userId);
-
       events.forEach(event => {
         // LogoフォームのURLにLINEユーザーIDを付与
         const logoFormRedirectURL = `${event.logoFormUrl}?${LOGO_FORM_USER_ID_PARAM}=${encodedUserId}`;
@@ -280,6 +154,22 @@
     }
 
     /**
+     * カスタムメッセージボックスを表示します。（alertの代替）
+     * @param {string} message - 表示するメッセージ
+     */
+    function showCustomMessage(message) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'custom-message-box'; // スタイルを適用
+      messageDiv.innerHTML = `
+        <div class="custom-message-content">
+          <p class="text-lg text-gray-800 mb-4 whitespace-pre-wrap">${message}</p>
+          <button onclick="this.parentNode.parentNode.remove()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">OK</button>
+        </div>
+      `;
+      document.body.appendChild(messageDiv);
+    }
+
+    /**
      * イベント詳細を表示します。（現在はカスタムメッセージボックス）
      * @param {string} eventId - 詳細を表示するイベントのID
      */
@@ -293,7 +183,7 @@
     }
 
     // アプリケーションの開始
-    window.onload = initializeLiff;
+    initializeLiff();
   </script>
 </body>
 </html>
