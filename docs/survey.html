@@ -50,6 +50,8 @@
 
     <!-- イベントリスト表示エリア -->
     <div id="event-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- LIFF初期化中のメッセージ -->
+      <p id="liff-status-message" class="text-gray-600 col-span-full">LINEログイン情報を取得中です...</p>
       <!-- イベントカードはここに動的に挿入されます -->
     </div>
 
@@ -63,17 +65,17 @@
 
   <script type="module">
     // --- 設定 ---
-      const LIFF_ID = "2007626441-bRzd722l"; // あなたの LIFF ID
+    const LIFF_ID = "2007626441-kPN01334"; // あなたの LIFF ID
     // LogoフォームのユーザーIDに対応するパラメータ名
     const LOGO_FORM_USER_ID_PARAM = "r[11:text]";
     
     // イベントデータ配列
-    // 各イベントに対応するGoogleフォームのURLとentry IDを設定してください。
-    // entry IDはGoogleフォームの「事前入力URLを取得」機能で確認できます。
+    // 各イベントに対応するLogoフォームのURLを設定してください。
+    // LINE IDは `LOGO_FORM_USER_ID_PARAM` を使って自動で付与されます。
     const events = [
       {
         id: 'shizuoka-summit-2025',
-        name: 'イベント①',
+        name: 'しずおかサミット2025',
         date: '2025/10/12',
         description: '静岡市の未来を語り合う一大イベントです。地域活性化に興味のある方はぜひご参加ください。',
         logoFormUrl: 'https://logoform.jp/form/79j2/1148303' // このURLがLogoフォームのベースURLになります
@@ -97,29 +99,85 @@
 
     // UI要素の取得
     const eventListContainer = document.getElementById('event-list');
+    const liffStatusMessage = document.getElementById('liff-status-message'); // LIFFステータスメッセージ要素
 
-    // LIFFプロフィール情報を保持（今回は直接使用しないが、liff.login()のために必要）
+    // LIFFプロフィール情報を保持
     let liffProfile = null; 
+
+    /**
+     * カスタムメッセージボックスを表示します。（alertの代替）
+     * @param {string} message - 表示するメッセージ
+     */
+    function showCustomMessage(message) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'custom-message-box'; // スタイルを適用
+      messageDiv.innerHTML = `
+        <div class="custom-message-content">
+          <p class="text-lg text-gray-800 mb-4 whitespace-pre-wrap">${message}</p>
+          <button onclick="this.parentNode.parentNode.remove()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">OK</button>
+        </div>
+      `;
+      document.body.appendChild(messageDiv);
+    }
 
     /**
      * LIFFの初期化とプロフィール情報の取得を行います。
      */
     async function initializeLiff() {
       try {
+        liffStatusMessage.innerText = "LIFFを初期化しています...";
+        console.log("LIFF初期化を開始します。LIFF ID:", LIFF_ID);
+        
         await liff.init({ liffId: LIFF_ID });
+        console.log("LIFF初期化が完了しました。");
 
-        if (!liff.isLoggedIn()) {
-          liff.login(); // ログインしていない場合はログインページへリダイレクト
+        // LIFFがLINEアプリ内で動作しているか確認
+        if (!liff.isInClient()) {
+          liffStatusMessage.innerText = ""; // メッセージをクリア
+          showCustomMessage("このページはLINEアプリ内で開いてください。");
+          eventListContainer.innerHTML = '<p class="text-red-500 col-span-full">このページはLINEアプリ内で開いてください。</p>';
           return;
         }
 
-        liffProfile = await liff.getProfile(); // プロフィール情報を取得（今回は直接使わないが、取得はしておく）
+        liffStatusMessage.innerText = "LINEログイン状態を確認しています...";
+        if (!liff.isLoggedIn()) {
+          console.log("ユーザーはログインしていません。LINEログインを開始します。");
+          liffStatusMessage.innerText = "LINEにログインしています...";
+          liff.login(); // 未ログインの場合はログインページへリダイレクト
+          return; // ログイン後、ページがリロードされるため、ここで処理を終了
+        }
+        console.log("ユーザーはLINEにログイン済みです。");
+
+        liffStatusMessage.innerText = "LINEプロフィール情報を取得しています...";
+        liffProfile = await liff.getProfile();
         console.log("LIFF Profile:", liffProfile);
 
-        renderEvents(); // LIFF初期化後、イベントリストをレンダリング
+        // userIdが取得できない場合はエラーを表示
+        if (!liffProfile || !liffProfile.userId) {
+          console.error("LINEユーザーIDが取得できませんでした。LIFFアプリの権限設定を確認してください。");
+          liffStatusMessage.innerText = ""; // メッセージをクリア
+          showCustomMessage("LINEユーザーIDが取得できませんでした。\nLIFFアプリの権限設定（Scope: profile）をご確認ください。");
+          eventListContainer.innerHTML = '<p class="text-red-500 col-span-full">エラー: ユーザーIDが取得できませんでした。</p>';
+          return;
+        }
+
+        // LIFFステータスメッセージを非表示にし、イベントリストをレンダリング
+        liffStatusMessage.classList.add('hidden');
+        renderEvents(); 
+
       } catch (error) {
-        console.error("LIFFの初期化に失敗しました:", error);
-        eventListContainer.innerHTML = '<p class="text-red-500">LIFFの初期化に失敗しました。時間をおいて再度お試しください。</p>';
+        console.error("LIFFの初期化またはプロフィール取得に失敗しました:", error);
+        liffStatusMessage.innerText = ""; // メッセージをクリア
+        let errorMessage = "エラーが発生しました。時間をおいて再度お試しください。";
+        if (error.code === '2000' || error.message.includes('LIFF ID is not valid')) {
+          errorMessage = "LIFF IDが正しくありません。\nLINE DevelopersコンソールでLIFF IDを確認してください。";
+        } else if (error.message.includes('network error')) {
+          errorMessage = "ネットワークエラーが発生しました。\nインターネット接続を確認してください。";
+        } else if (error.message.includes('not in LINE environment')) {
+          errorMessage = "このページはLINEアプリ内で開いてください。";
+        }
+        showCustomMessage(errorMessage + "\n詳細: " + error.message);
+        eventListContainer.innerHTML = `<p class="text-red-500 col-span-full">${errorMessage}</p>`;
       }
     }
 
@@ -128,6 +186,16 @@
      */
     function renderEvents() {
       eventListContainer.innerHTML = ''; // 既存のコンテンツをクリア
+
+      // liffProfileが取得できていない場合は処理を中断
+      if (!liffProfile || !liffProfile.userId) {
+        console.warn("LIFFプロフィール情報が利用できません。イベントリストをレンダリングできません。");
+        // エラーメッセージはinitializeLiffで既に設定されているため、ここでは何もしない
+        return;
+      }
+
+      const encodedUserId = encodeURIComponent(liffProfile.userId);
+
       events.forEach(event => {
         // LogoフォームのURLにLINEユーザーIDを付与
         const logoFormRedirectURL = `${event.logoFormUrl}?${LOGO_FORM_USER_ID_PARAM}=${encodedUserId}`;
@@ -154,22 +222,6 @@
     }
 
     /**
-     * カスタムメッセージボックスを表示します。（alertの代替）
-     * @param {string} message - 表示するメッセージ
-     */
-    function showCustomMessage(message) {
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'custom-message-box'; // スタイルを適用
-      messageDiv.innerHTML = `
-        <div class="custom-message-content">
-          <p class="text-lg text-gray-800 mb-4 whitespace-pre-wrap">${message}</p>
-          <button onclick="this.parentNode.parentNode.remove()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">OK</button>
-        </div>
-      `;
-      document.body.appendChild(messageDiv);
-    }
-
-    /**
      * イベント詳細を表示します。（現在はカスタムメッセージボックス）
      * @param {string} eventId - 詳細を表示するイベントのID
      */
@@ -183,7 +235,7 @@
     }
 
     // アプリケーションの開始
-    initializeLiff();
+    window.onload = initializeLiff;
   </script>
 </body>
 </html>
