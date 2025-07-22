@@ -62,55 +62,44 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <script type="module">
-    // --- 設定 ---
-    const LIFF_ID = "2007626441-kPN01334"; // あなたの LIFF ID
-    
+   // --- 設定 ---
+    const LIFF_ID = "2007626441-bRzd722l"; // あなたの LIFF ID
+    // LogoフォームのユーザーIDに対応するパラメータ名
+    const LOGO_FORM_USER_ID_PARAM = "r[11:text]";
     // イベントデータ配列
     // 各イベントに対応するGoogleフォームのURLとentry IDを設定してください。
     // entry IDはGoogleフォームの「事前入力URLを取得」機能で確認できます。
-    const events = [
+     const events = [
       {
         id: 'shizuoka-summit-2025',
-        name: 'しずおかサミット2025',
+        name: 'イベント①',
         date: '2025/10/12',
         description: '静岡市の未来を語り合う一大イベントです。地域活性化に興味のある方はぜひご参加ください。',
-        googleFormBaseUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSe9Vqr49ns-lfL9Pf7j7WOr0WpV2NwDCFanuBpXAN2G54SyA/viewform?embedded=true',
-        entryDisplayNameId: 'entry.1345981371',
-        entryUserIdId: 'entry.802528278',
-        entryEventNameId: 'entry.2113127153',
-        entryEventDateId: 'entry.605954855'
+        logoFormUrl: 'https://logoform.jp/form/79j2/1148303' // このURLがLogoフォームのベースURLになります
       },
       {
         id: 'local-biz-fair',
         name: '地域ビジネス交流会',
         date: '2025/11/05',
         description: '静岡県内の企業や個人事業主が集まるビジネス交流イベント。新たなビジネスチャンスを創出します。',
-        // --- !!! ここに実際のGoogleフォームのURLとentry IDを設定してください !!! ---
-        googleFormBaseUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSde_EXAMPLE_FORM_ID_2/viewform?embedded=true',
-        entryDisplayNameId: 'entry.1234567890',
-        entryUserIdId: 'entry.0987654321',
-        entryEventNameId: 'entry.1122334455',
-        entryEventDateId: 'entry.6677889900'
+        logoFormUrl: 'https://logoform.jp/form/79j2/YOUR_LOGO_FORM_ID_2' // ここに実際のLogoフォームのURLを設定してください
       },
       {
         id: 'shizuoka-marathon',
         name: '静岡マラソン',
         date: '2026/03/01',
         description: '風光明媚な静岡の街を駆け抜ける市民マラソン大会。初心者からベテランまで楽しめます。',
-        // --- !!! ここに実際のGoogleフォームのURLとentry IDを設定してください !!! ---
-        googleFormBaseUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSde_EXAMPLE_FORM_ID_3/viewform?embedded=true',
-        entryDisplayNameId: 'entry.9988776655',
-        entryUserIdId: 'entry.5544332211',
-        entryEventNameId: 'entry.0011223344',
-        entryEventDateId: 'entry.1122334455'
+        logoFormUrl: 'https://logoform.jp/form/79j2/YOUR_LOGO_FORM_ID_3' // ここに実際のLogoフォームのURLを設定してください
       }
     ];
+
     // --- 設定ここまで ---
 
     // UI要素の取得
     const eventListContainer = document.getElementById('event-list');
+    const loadingMessage = document.getElementById('loading-message');
 
-    // LIFFプロフィール情報を保持（今回は直接使用しないが、liff.login()のために必要）
+    // LIFFプロフィール情報を保持
     let liffProfile = null; 
 
     /**
@@ -118,20 +107,38 @@
      */
     async function initializeLiff() {
       try {
+        // LIFF初期化
         await liff.init({ liffId: LIFF_ID });
+        console.log("LIFF初期化が完了しました。");
 
+        // LINEにログイン済みか確認
         if (!liff.isLoggedIn()) {
-          liff.login(); // ログインしていない場合はログインページへリダイレクト
+          console.log("ユーザーはログインしていません。LINEログインを開始します。");
+          liff.login(); // 未ログインの場合はログインページへリダイレクト
+          return; // ログイン後、ページがリロードされるため、ここで処理を終了
+        }
+        console.log("ユーザーはLINEにログイン済みです。");
+
+        // LINEプロフィール情報を取得
+        liffProfile = await liff.getProfile();
+        console.log("LIFF Profile:", liffProfile);
+
+        // userIdが取得できない場合はエラーを表示
+        if (!liffProfile || !liffProfile.userId) {
+          console.error("LINEユーザーIDが取得できませんでした。LIFFアプリの権限設定を確認してください。");
+          showCustomMessage("LINEユーザーIDが取得できませんでした。LIFFアプリの権限設定を確認してください。");
+          loadingMessage.innerText = "エラー: ユーザーIDが取得できませんでした。";
           return;
         }
 
-        liffProfile = await liff.getProfile(); // プロフィール情報を取得（今回は直接使わないが、取得はしておく）
-        console.log("LIFF Profile:", liffProfile);
+        // ローディングメッセージを非表示にし、イベントリストをレンダリング
+        loadingMessage.classList.add('hidden');
+        renderEvents(); 
 
-        renderEvents(); // LIFF初期化後、イベントリストをレンダリング
       } catch (error) {
         console.error("LIFFの初期化に失敗しました:", error);
-        eventListContainer.innerHTML = '<p class="text-red-500">LIFFの初期化に失敗しました。時間をおいて再度お試しください。</p>';
+        loadingMessage.innerText = "LIFFの初期化に失敗しました。時間をおいて再度お試しください。";
+        showCustomMessage("LIFFの初期化に失敗しました。時間をおいて再度お試しください。");
       }
     }
 
@@ -140,14 +147,27 @@
      */
     function renderEvents() {
       eventListContainer.innerHTML = ''; // 既存のコンテンツをクリア
+
+      // liffProfileが取得できていない場合は処理を中断
+      if (!liffProfile || !liffProfile.userId) {
+        console.warn("LIFFプロフィール情報が利用できません。イベントリストをレンダリングできません。");
+        eventListContainer.innerHTML = '<p class="text-red-500 col-span-full">ユーザー情報が取得できないため、イベント情報を表示できません。</p>';
+        return;
+      }
+
+      const encodedUserId = encodeURIComponent(liffProfile.userId);
+
       events.forEach(event => {
+        // LogoフォームのURLにLINEユーザーIDを付与
+        const logoFormRedirectURL = `${event.logoFormUrl}?${LOGO_FORM_USER_ID_PARAM}=${encodedUserId}`;
+
         const eventCard = `
           <div class="bg-blue-50 rounded-lg shadow-md p-6 border border-blue-200 flex flex-col items-center text-center">
             <h3 class="text-xl font-bold text-blue-800 mb-2">${event.name}</h3>
             <p class="text-gray-600 mb-2">🗓️ ${event.date}</p>
             <p class="text-gray-700 text-sm mb-4 flex-grow">${event.description}</p>
             <div class="flex flex-col space-y-2 w-full">
-              <button onclick="location.href='join.html?eventId=${event.id}'"
+              <button onclick="window.location.replace('${logoFormRedirectURL}')"
                       class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-base font-medium">
                 申込み
               </button>
@@ -192,7 +212,7 @@
     }
 
     // アプリケーションの開始
-    initializeLiff();
+    window.onload = initializeLiff;
   </script>
 </body>
 </html>
